@@ -45,16 +45,28 @@ dame_equipos_partido([Equipos, _, _, _], Equipos).
 
 /* dame_partidos_jornada(input, output)
    donde:
-      input: la fecha de la jornada que se busca
+      input: el número de la jornada que se busca
       outuput: los partidos que se juegan en esa jornada
 */
-dame_partidos_jornada_aux(Fecha_jornada, Partido_aux):-
-   partido(Partido_aux),
-   dame_fecha_partido(Partido_aux, Fecha_partido_aux),
+dame_partidos_jornada_aux(Fecha_jornada, Partido):-
+   partido(Partido),
+   dame_fecha_partido(Partido, Fecha_partido_aux),
    Fecha_partido_aux == Fecha_jornada.
 
 dame_partidos_jornada(Fecha_jornada, Partidos):-
    findall(Partido, dame_partidos_jornada_aux(Fecha_jornada, Partido), Partidos).
+
+/* dame_partidos_jornada_individual(input, output)
+   donde:
+      input: el número de la jornada que se busca
+      output: los partidos que se juegan en esa jornada enlistados de uno por uno
+*/
+dame_partidos_jornada_individuales(Fecha_jornada, Partido):-
+   partido(Partido),
+   dame_fecha_partido(Partido, Fecha_partido_aux),
+   Fecha_partido_aux == Fecha_jornada.
+
+dame_partidos_jornada_individuales(_,_).
 
 
 /* El partido que ocasiona el movimiento es: New Castle vs Chelsea */
