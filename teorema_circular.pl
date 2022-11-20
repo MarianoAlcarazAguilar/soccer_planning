@@ -8,7 +8,7 @@ partido([[nottm_forest, crystal_palace], 16, viernes, 5]).
 partido([[newcastle, chelsea], 16, viernes, 5]).
 partido([[wolves, arsenal], 16, viernes, 5]).
 partido([[brighton, aston_villa], 16, viernes, 5]).
-partido([[fulham, man_united], 16, viernes, 5]).
+partido([[fulham, man_united], 16, viernes, 5]). 
 
 partido([[brentford, tottenham], 17, viernes, 5]).
 partido([[southampton, brighton], 17, viernes, 5]).
