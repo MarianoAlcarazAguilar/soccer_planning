@@ -1,4 +1,4 @@
-/* partido: [equipo_local, equipo_visitante], num_jornada, hora */
+/* partido: [equipo_local, equipo_visitante], num_jornada, dia_juego, hora */
 partido([[man_city, brentford], 16, viernes, 5]).
 partido([[liverpool, southampton], 16, viernes, 5]).
 partido([[bournemouth, everton], 16, viernes, 5]).
@@ -21,12 +21,12 @@ partido([[chelsea, bournemouth], 17, viernes, 5]).
 partido([[man_united, nottm_forest], 17, viernes, 5]).
 partido([[leeds_united, man_city], 17, viernes, 5]).
 
-/* dame_fecha_partido(input, output)
+/* dame_num_jornada_partido(input, output)
    donde:
-      input: el partido del cual se desea extraer la fecha
-      output: la fecha del partido en cuestión
+      input: el partido del cual se desea extraer el número de jornada
+      output: el número de jornada del partido en cuestión
 */
-dame_fecha_partido([_, Num_jornada, _, _], Num_jornada).
+dame_num_jornada_partido([_, Num_jornada, _, _], Num_jornada).
 
 
 /* dame_hora_partido(input, output)
@@ -48,23 +48,23 @@ dame_equipos_partido([Equipos, _, _, _], Equipos).
       input: el número de la jornada que se busca
       outuput: los partidos que se juegan en esa jornada
 */
-dame_partidos_jornada_aux(Fecha_jornada, Partido):-
+dame_partidos_jornada_aux(Numero_jornada, Partido):-
    partido(Partido),
-   dame_fecha_partido(Partido, Fecha_partido_aux),
-   Fecha_partido_aux == Fecha_jornada.
+   dame_num_jornada_partido(Partido, Numero_jornada_aux),
+   Numero_jornada_aux == Numero_jornada.
 
-dame_partidos_jornada(Fecha_jornada, Partidos):-
-   findall(Partido, dame_partidos_jornada_aux(Fecha_jornada, Partido), Partidos).
+dame_partidos_jornada(Numero_jornada, Partidos):-
+   findall(Partido, dame_partidos_jornada_aux(Numero_jornada, Partido), Partidos).
 
 /* dame_partidos_jornada_individual(input, output)
    donde:
       input: el número de la jornada que se busca
       output: los partidos que se juegan en esa jornada enlistados de uno por uno
 */
-dame_partidos_jornada_individuales(Fecha_jornada, Partido):-
+dame_partidos_jornada_individuales(Numero_jornada, Partido):-
    partido(Partido),
-   dame_fecha_partido(Partido, Fecha_partido_aux),
-   Fecha_partido_aux == Fecha_jornada.
+   dame_num_jornada_partido(Partido, Numero_jornada_aux),
+   Numero_jornada_aux == Numero_jornada.
 
 dame_partidos_jornada_individuales(_,_).
 
