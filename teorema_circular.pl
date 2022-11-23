@@ -122,20 +122,43 @@ dame_contrincante(Equipo_dado, Num_jornada, Equipo_contrincante):-
    ).
 
 
+ayuda([[newcastle, chelsea], 16, vie, 7]).
 /* El partido que ocasiona el movimiento es: New Castle vs Chelsea */
 
 /* dame_partidos_mover(input_1, input_2, input_3, output)
    donde:
       input_1: el partido de la primera jornada que ocasiona el movimiento; puede ser un partido [ equipo, equipo ] o partido de la forma completa
-      input_2: la jornada a
-      input_3: la jornada b
+      input_2: la jornada número 1
+      input_3: la jornada número 2
       output: los partidos que se deben mover en ambas jornadas para asegurarnos de que los equipos se mantienen iguales 
       NOTA: posteriormente esto se va a cambiar a dos outputs, los partidos separados de cada jornada que hay que cambiar
 */
-auxiliar(Partido, _, _, _):-
+/* conector, numero_jornada, siguiente */
+
+
+
+auxiliar(Partido, Num_jornada_1, Num_jornada_2, _):-
    /* Equipo_local es el equipo con el que se pretende terminar el ciclo */
-   encuentra_equipo_local(Partido, Equipo_local),
-   encuentra_equipo_visitante(Partido, Equipo_visitante).
+   encuentra_equipo_local(Partido, Equipo_inicial_final),
+   /* Equipo_visitante es el equipo con el que empezamos a buscar en la otra jornada hasta encontrar al Equipo_local */
+   encuentra_equipo_visitante(Partido, Equipo_auxiliar),
+   dame_contrincante(Equipo_auxiliar, Num_jornada_2, Contrincante),
+   (
+      Contrincante == Equipo_inicial_final ->
+         write('Ya terminé');
+         dame_contrincante(Contrincante, Num_jornada_1, Contrincante_aux),
+         write(Contrincante_aux)
+   ).
    
+final(Equipo_objetivo, Auxiliar, Num_jornada_1, Num_jornada_2):-
+   dame_contrincante(Auxiliar, Num_jornada_2, Contrincante),
+   write(Contrincante),
+   (
+      Contrincante == Equipo_objetivo ->
+      write('done');
+      final(Equipo_objetivo, Contrincante, Num_jornada_2, Num_jornada_1)
+   ).
 
-
+/*
+las economias estan correlacionadas, por la dependencia mexicana, cuando hay desempleo, lo que pasa es que si mandas dinero sabes que su ingreso acá va a bajar más que allá
+*/
