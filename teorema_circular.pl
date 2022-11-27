@@ -176,7 +176,7 @@ busca_hasta_regresar(Equipo_inicial, Equipo_aux, Equipos_jornada_a, Equipos_jorn
          (Equipo_inicial \== Contrincante ->
             busca_hasta_regresar(Equipo_inicial, Contrincante, Equipos_jornada_a, Equipos_jornada_b, Par_impar + 1, _)
             ;
-               !
+               true
          )
    ).
 
