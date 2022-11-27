@@ -87,8 +87,14 @@ dame_partidos_jornada_individuales(_,_).
       output: Los equipos que jugarán cada partido en la jornada en cuestión
 */
 saca_equipos_una_jornada(Jornada, Equipos):-
-   dame_partidos_jornada_individuales(Jornada, Equipo_aux),
-   dame_equipos_partido(Equipo_aux, Equipos).
+   dame_partidos_jornada(Jornada, Partidos),
+   recorre_partidos(Partidos, Equipos).
+
+
+recorre_partidos([], []):- !.
+recorre_partidos([[Equipos, _, _, _] | Resto_partidos], [Equipos | Resto_equipos]):-
+   recorre_partidos(Resto_partidos, Resto_equipos).
+
 
 /* encuentra_partido_local(input, output)
    encuentra_partido_visitante(input, output) (basicamente funciona igual)
@@ -147,35 +153,27 @@ ayuda([[newcastle, chelsea], 16, vie, 7]).
 */
 /* conector, numero_jornada, siguiente */
 
-
-
-auxiliar(Partido, Num_jornada_1, Num_jornada_2, _):-
-   /* Equipo_local es el equipo con el que se pretende terminar el ciclo */
-   encuentra_equipo_local(Partido, Equipo_inicial_final),
-   /* Equipo_visitante es el equipo con el que empezamos a buscar en la otra jornada hasta encontrar al Equipo_local */
-   encuentra_equipo_visitante(Partido, Equipo_auxiliar),
-   dame_contrincante(Equipo_auxiliar, Num_jornada_2, Contrincante),
-   (
-      Contrincante == Equipo_inicial_final ->
-         write('Ya terminé');
-         dame_contrincante(Contrincante, Num_jornada_1, Contrincante_aux),
-         write(Contrincante_aux)
-   ).
-   
-final(Equipo_objetivo, Auxiliar, Num_jornada_1, Num_jornada_2):-
-   dame_contrincante(Auxiliar, Num_jornada_2, Contrincante),
-   write(Contrincante),
-   (
-      Contrincante == Equipo_objetivo ->
-      write('done');
-      final(Equipo_objetivo, Contrincante, Num_jornada_2, Num_jornada_1)
-   ).
-
-/*
-las economias estan correlacionadas, por la dependencia mexicana, cuando hay desempleo, lo que pasa es que si mandas dinero sabes que su ingreso acá va a bajar más que allá
+/* busca_contrincante(input_1, input_2, output)
+   donde:
+      input_1: el nombre del equipo buscado
+      input_2: la lista con los equipos
+      output: el equipo contra el que está jugando el equipo buscado
+Dada una LISTA DE EQUIPOS y el NOMBRE DE EQUIPO, encontrar a su contrincante.
 */
+busca_contrincante(_, [], _):- !.
+busca_contrincante(Equipo_buscado, [[Un_equipo, Otro_equipo] | Resto_equipos], Contrincante):-
+   busca_contrincante(Equipo_buscado, Resto_equipos, Contrincante),
+   (Equipo_buscado == Un_equipo -> evalua_contrincate(Equipo_buscado, [Un_equipo, Otro_equipo], Contrincante);
+      (Equipo_buscado == Otro_equipo -> evalua_contrincate(Equipo_buscado, [Un_equipo, Otro_equipo], Contrincante); true)
+   ).
+
+evalua_contrincate(Equipo_buscado, [Equipo_buscado, Otro_equipo], Otro_equipo):- !.
+evalua_contrincate(Equipo_buscado, [Otro_equipo, Equipo_buscado], Otro_equipo).
 
 /* Necesito encontrar el contrincante dada la lista de equipos */
 main:-
    saca_equipos_una_jornada(16,Equipos),
-   write(Equipos).
+   write(Equipos),
+   length(Equipos, Size),
+   nl,
+   write(Size).
