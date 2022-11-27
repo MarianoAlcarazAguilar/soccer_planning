@@ -1,8 +1,11 @@
 :- dynamic to_be_moved/1.
+:- dynamic partido/1.
+:- dynamic partido_aux/1.
 /*
 Métodos que tengo:
 dame_num_jornada_partido(input, output)
 dame_hora_partido(input, output)
+dame_dia_partido(input, output)
 dame_equipos_partido(input, output)
 dame_partidos_jornada(input, output)
 dame_partidos_jornada_individual(input, output)
@@ -10,6 +13,9 @@ saca_equipos_una_jornada(input, output)
 encuentra_partido_local(input, output)
 encuentra_partido_visitante(input, output)
 busca_contrinante(input, input, output)
+busca_hasta_regresar()
+find_teams_to_move(input, input, input, output)
+encuentra_equipos_a_mover(input, input, input, output)
 */
 
 /* partido: [equipo_local, equipo_visitante], num_jornada, dia_juego, hora */
@@ -56,6 +62,13 @@ dame_hora_partido([_, _, _, Hora], Hora).
       output: los equipos del partido en cuestión
 */
 dame_equipos_partido([Equipos, _, _, _], Equipos).
+
+/* dame_dia_partido(input, output)
+   donde:
+      input: el partido del cual se desea extraer el dia
+      output: el dia del partido en cuestión
+*/
+dame_dia_partido([_, _, Dia, _], Dia).
 
 /* dame_partidos_jornada(input, output)
    donde:
@@ -159,6 +172,13 @@ evalua_contrincate(Equipo_buscado, [Equipo_buscado, Otro_equipo], Otro_equipo):-
 evalua_contrincate(Equipo_buscado, [Otro_equipo, Equipo_buscado], Otro_equipo).
 
 /*
+busca_hasta_regresar(input_1, input_2, input_3, input_4, input_5, output)
+donde:
+   input_1: El equipo inicial y final (cuando se encuentra en la otra jornada se acaba la búsqueda)
+   input_2: Equipo auxiliar que va cambiando, es el contrincante de equipo inicial, y así sucesivamente
+   input_3: Una lista con los equipos de la jornada a
+   input_4: Una lista con los equipos de la jornada b
+   output: El primer contrincante. Al chile esto casi ni se necesita
 Dado un nombre de equipo inicial, encontrar todos los equipos que se necesitan iterar hasta llegar de nuevo al inicial.
 Esta función recibe el nombre del equipo inicial, y las listas con los equipos de dos jornadas
 */
@@ -182,13 +202,51 @@ busca_hasta_regresar(Equipo_inicial, Equipo_aux, Equipos_jornada_a, Equipos_jorn
    ).
 
 
-/* Necesito encontrar el contrincante dada la lista de equipos */
+/* find_teams_to_move(input_1, input_2, input_3, output)
+   donde:
+      input_1: nombre de un equipo del partido que provoca los movimientos
+      input_2: el número de la peor jornada
+      input_3: el número de la otra jornada
+      output: una lista con los nombres de los equipos que se necesitan mover
+Necesito encontrar el contrincante dada la lista de equipos 
+*/
 find_teams_to_move(Equipo_inicial, Jornada_a, Jornada_b, Equipos):-
    encuentra_equipos_a_mover([Equipo_inicial, _], Jornada_a, Jornada_b, Equipos).
-   
+
 encuentra_equipos_a_mover([Equipo_inicial, _], Jornada_a, Jornada_b, Equipos):-
    saca_equipos_una_jornada(Jornada_a, Equipos_jornada_a),
    saca_equipos_una_jornada(Jornada_b, Equipos_jornada_b),
    busca_hasta_regresar(Equipo_inicial, Equipo_inicial, Equipos_jornada_a, Equipos_jornada_b, 0, _),
    findall(Y, to_be_moved(Y), Equipos),
    retractall(to_be_moved(_)).
+
+/* 
+Ahora necesito una función que cambie el número de las jornadas de los partidos necesarios 
+*/
+dame_nueva_jornada(Jornada_original, Jornada_original, Jornada_b, Jornada_b):- !.
+dame_nueva_jornada(Jornada_original, Jornada_a, Jornada_original, Jornada_a).
+
+crea_partidos_auxiliares(Equipo_inicial, Jornada_a, Jornada_b):-
+   find_teams_to_move(Equipo_inicial, Jornada_a, Jornada_b, Equipos),
+   partido(Partido),
+   dame_equipos_partido(Partido, [Equipo_1, Equipo_2]),
+   member(Equipo_1, Equipos),
+   dame_num_jornada_partido(Partido, Num_jornada),
+   dame_hora_partido(Partido, Hora),
+   dame_dia_partido(Partido, Dia),
+   dame_nueva_jornada(Num_jornada, Jornada_a, Jornada_b, Nueva_jornada),
+   retract(partido(Partido)),
+   asserta(partido_aux([[Equipo_1, Equipo_2], Nueva_jornada, Dia, Hora])).
+
+crea_partidos_auxiliares(_, _, _).
+
+add_partidos_aux_to_partidos:-
+   partido_aux(Partido_aux),
+   asserta(partido(Partido_aux)),
+   retract(partido_aux(Partido_aux)).
+
+cambia_partidos_entre_jornadas(Equipo_inicial, Jornada_a, Jornada_b):-
+   crea_partidos_auxiliares(Equipo_inicial, Jornada_a, Jornada_b),
+   add_partidos_aux_to_partidos.
+   
+cambia_partidos_entre_jornadas(_, _, _).
