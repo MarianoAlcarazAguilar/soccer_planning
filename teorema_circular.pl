@@ -169,17 +169,15 @@ busca_hasta_regresar(Equipo_inicial, Equipo_aux, Equipos_jornada_a, Equipos_jorn
       busca_contrincante(Equipo_aux, Equipos_jornada_a, Contrincante),
       write(Contrincante),nl,
       Equipo_inicial \== Contrincante,
-      busca_hasta_regresar(Equipo_inicial, Contrincante, Equipos_jornada_a, Equipos_jornada_b, Par_impar + 1, Otro)
+      busca_hasta_regresar(Equipo_inicial, Contrincante, Equipos_jornada_a, Equipos_jornada_b, Par_impar + 1, _)
       ; 
          busca_contrincante(Equipo_aux, Equipos_jornada_b, Contrincante),
          write(Contrincante),nl,
          (Equipo_inicial \== Contrincante ->
-            busca_hasta_regresar(Equipo_inicial, Contrincante, Equipos_jornada_a, Equipos_jornada_b, Par_impar + 1, Otro)
+            busca_hasta_regresar(Equipo_inicial, Contrincante, Equipos_jornada_a, Equipos_jornada_b, Par_impar + 1, _)
             ;
                !
          )
-         %Equipo_inicial \== Contrincante,
-         %busca_hasta_regresar(Equipo_inicial, Contrincante, Equipos_jornada_a, Equipos_jornada_b, Par_impar + 1, _)
    ).
 
 
