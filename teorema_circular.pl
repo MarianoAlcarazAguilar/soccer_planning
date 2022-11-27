@@ -1,3 +1,4 @@
+:- dynamic to_be_moved/1.
 /*
 Métodos que tengo:
 dame_num_jornada_partido(input, output)
@@ -167,12 +168,12 @@ busca_hasta_regresar(Equipo_inicial, Equipo_aux, Equipos_jornada_a, Equipos_jorn
    Z is Par_impar mod 2,
    (Z == 0 -> 
       busca_contrincante(Equipo_aux, Equipos_jornada_a, Contrincante),
-      write(Contrincante),nl,
+      asserta(to_be_moved(Contrincante)),
       Equipo_inicial \== Contrincante,
       busca_hasta_regresar(Equipo_inicial, Contrincante, Equipos_jornada_a, Equipos_jornada_b, Par_impar + 1, _)
       ; 
          busca_contrincante(Equipo_aux, Equipos_jornada_b, Contrincante),
-         write(Contrincante),nl,
+         asserta(to_be_moved(Contrincante)),
          (Equipo_inicial \== Contrincante ->
             busca_hasta_regresar(Equipo_inicial, Contrincante, Equipos_jornada_a, Equipos_jornada_b, Par_impar + 1, _)
             ;
@@ -182,7 +183,12 @@ busca_hasta_regresar(Equipo_inicial, Equipo_aux, Equipos_jornada_a, Equipos_jorn
 
 
 /* Necesito encontrar el contrincante dada la lista de equipos */
-main([Equipo_inicial, _], Jornada_a, Jornada_b, Contrincante):-
+find_teams_to_move(Equipo_inicial, Jornada_a, Jornada_b, Equipos):-
+   encuentra_equipos_a_mover([Equipo_inicial, _], Jornada_a, Jornada_b, Equipos).
+   
+encuentra_equipos_a_mover([Equipo_inicial, _], Jornada_a, Jornada_b, Equipos):-
    saca_equipos_una_jornada(Jornada_a, Equipos_jornada_a),
    saca_equipos_una_jornada(Jornada_b, Equipos_jornada_b),
-   busca_hasta_regresar(Equipo_inicial, Equipo_inicial, Equipos_jornada_a, Equipos_jornada_b, 0, Contrincante).      
+   busca_hasta_regresar(Equipo_inicial, Equipo_inicial, Equipos_jornada_a, Equipos_jornada_b, 0, _),
+   findall(Y, to_be_moved(Y), Equipos),
+   retractall(to_be_moved(_)).
