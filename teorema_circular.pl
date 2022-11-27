@@ -8,6 +8,7 @@ dame_partidos_jornada_individual(input, output)
 saca_equipos_una_jornada(input, output)
 encuentra_partido_local(input, output)
 encuentra_partido_visitante(input, output)
+busca_contrinante(input, input, output)
 */
 
 /* partido: [equipo_local, equipo_visitante], num_jornada, dia_juego, hora */
@@ -139,20 +140,6 @@ dame_contrincante(Equipo_dado, Num_jornada, Equipo_contrincante):-
       )
    ).
 
-
-ayuda([[newcastle, chelsea], 16, vie, 7]).
-/* El partido que ocasiona el movimiento es: New Castle vs Chelsea */
-
-/* dame_partidos_mover(input_1, input_2, input_3, output)
-   donde:
-      input_1: el partido de la primera jornada que ocasiona el movimiento; puede ser un partido [ equipo, equipo ] o partido de la forma completa
-      input_2: la jornada número 1
-      input_3: la jornada número 2
-      output: los partidos que se deben mover en ambas jornadas para asegurarnos de que los equipos se mantienen iguales 
-      NOTA: posteriormente esto se va a cambiar a dos outputs, los partidos separados de cada jornada que hay que cambiar
-*/
-/* conector, numero_jornada, siguiente */
-
 /* busca_contrincante(input_1, input_2, output)
    donde:
       input_1: el nombre del equipo buscado
@@ -170,10 +157,34 @@ busca_contrincante(Equipo_buscado, [[Un_equipo, Otro_equipo] | Resto_equipos], C
 evalua_contrincate(Equipo_buscado, [Equipo_buscado, Otro_equipo], Otro_equipo):- !.
 evalua_contrincate(Equipo_buscado, [Otro_equipo, Equipo_buscado], Otro_equipo).
 
+/*
+Dado un nombre de equipo inicial, encontrar todos los equipos que se necesitan iterar hasta llegar de nuevo al inicial.
+Esta función recibe el nombre del equipo inicial, y las listas con los equipos de dos jornadas
+*/
+busca_hasta_regresar(Equipo_inicial, Equipo_aux, Equipos_jornada_a, Equipos_jornada_b, Par_impar, Contrincante):-
+   /*Tenemos que saber en qué lista de equipos tenemos que encontrar el contrincante */
+   /* Si Z es 0, significa que estamos en iteración par, por lo tanto, hay que buscar en la lista de equipos a; sino en la b */
+   Z is Par_impar mod 2,
+   (Z == 0 -> 
+      busca_contrincante(Equipo_aux, Equipos_jornada_a, Contrincante),
+      write(Contrincante),nl,
+      Equipo_inicial \== Contrincante,
+      busca_hasta_regresar(Equipo_inicial, Contrincante, Equipos_jornada_a, Equipos_jornada_b, Par_impar + 1, Otro)
+      ; 
+         busca_contrincante(Equipo_aux, Equipos_jornada_b, Contrincante),
+         write(Contrincante),nl,
+         (Equipo_inicial \== Contrincante ->
+            busca_hasta_regresar(Equipo_inicial, Contrincante, Equipos_jornada_a, Equipos_jornada_b, Par_impar + 1, Otro)
+            ;
+               !
+         )
+         %Equipo_inicial \== Contrincante,
+         %busca_hasta_regresar(Equipo_inicial, Contrincante, Equipos_jornada_a, Equipos_jornada_b, Par_impar + 1, _)
+   ).
+
+
 /* Necesito encontrar el contrincante dada la lista de equipos */
-main:-
-   saca_equipos_una_jornada(16,Equipos),
-   write(Equipos),
-   length(Equipos, Size),
-   nl,
-   write(Size).
+main([Equipo_inicial, _], Jornada_a, Jornada_b, Contrincante):-
+   saca_equipos_una_jornada(Jornada_a, Equipos_jornada_a),
+   saca_equipos_una_jornada(Jornada_b, Equipos_jornada_b),
+   busca_hasta_regresar(Equipo_inicial, Equipo_inicial, Equipos_jornada_a, Equipos_jornada_b, 0, Contrincante).      
