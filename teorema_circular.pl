@@ -1,3 +1,15 @@
+/*
+Métodos que tengo:
+dame_num_jornada_partido(input, output)
+dame_hora_partido(input, output)
+dame_equipos_partido(input, output)
+dame_partidos_jornada(input, output)
+dame_partidos_jornada_individual(input, output)
+saca_equipos_una_jornada(input, output)
+encuentra_partido_local(input, output)
+encuentra_partido_visitante(input, output)
+*/
+
 /* partido: [equipo_local, equipo_visitante], num_jornada, dia_juego, hora */
 partido([[man_city, brentford], 16, viernes, 5]).
 partido([[liverpool, southampton], 16, viernes, 5]).
@@ -162,3 +174,8 @@ final(Equipo_objetivo, Auxiliar, Num_jornada_1, Num_jornada_2):-
 /*
 las economias estan correlacionadas, por la dependencia mexicana, cuando hay desempleo, lo que pasa es que si mandas dinero sabes que su ingreso acá va a bajar más que allá
 */
+
+/* Necesito encontrar el contrincante dada la lista de equipos */
+main:-
+   saca_equipos_una_jornada(16,Equipos),
+   write(Equipos).
