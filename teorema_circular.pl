@@ -183,8 +183,6 @@ Dado un nombre de equipo inicial, encontrar todos los equipos que se necesitan i
 Esta función recibe el nombre del equipo inicial, y las listas con los equipos de dos jornadas
 */
 busca_hasta_regresar(Equipo_inicial, Equipo_aux, Equipos_jornada_a, Equipos_jornada_b, Par_impar, Contrincante):-
-   /*Tenemos que saber en qué lista de equipos tenemos que encontrar el contrincante */
-   /* Si Z es 0, significa que estamos en iteración par, por lo tanto, hay que buscar en la lista de equipos a; sino en la b */
    Z is Par_impar mod 2,
    (Z == 0 -> 
       busca_contrincante(Equipo_aux, Equipos_jornada_a, Contrincante),
@@ -220,12 +218,26 @@ encuentra_equipos_a_mover([Equipo_inicial, _], Jornada_a, Jornada_b, Equipos):-
    findall(Y, to_be_moved(Y), Equipos),
    retractall(to_be_moved(_)).
 
-/* 
-Ahora necesito una función que cambie el número de las jornadas de los partidos necesarios 
+/* dame_nueva_jornada(input_1, input_2, input_3, output)
+   donde:
+      input_1: el número de jornada original
+      input_2: el número de la jornada a
+      input_3: el número de la jornada b
+      output: el nuevo número de jornada
+Básicamente te da el contrario al número de jornada original, pues lo que se busca es cambiarlas.
 */
 dame_nueva_jornada(Jornada_original, Jornada_original, Jornada_b, Jornada_b):- !.
 dame_nueva_jornada(Jornada_original, Jornada_a, Jornada_original, Jornada_a).
 
+/* crea_partidos_auxiliares(input_1, input_2, input_3)
+   donde:
+      input_1: el nombre del equipo que provoca todos los cambios
+      input_2: el número de la jornada a
+      input_3: el número de la jornada b
+Esto esta MAL! 
+Ahora funciona porque solo tengo datos de dos jornadas, pero si tengo más me va a cambiar todos.
+Lo que hace es que crea partidos auxiliares con los nuevos números de jornada. También elimina los partidos originales para luego meterlos otra vez.
+*/
 crea_partidos_auxiliares(Equipo_inicial, Jornada_a, Jornada_b):-
    find_teams_to_move(Equipo_inicial, Jornada_a, Jornada_b, Equipos),
    partido(Partido),
@@ -240,10 +252,59 @@ crea_partidos_auxiliares(Equipo_inicial, Jornada_a, Jornada_b):-
 
 crea_partidos_auxiliares(_, _, _).
 
+
+
+/* dame_partidos_dos_jornadas(input_1, input_2, output)
+   donde:
+      input_1: el número de la jornada a
+      input_2: el número de la jornada b
+      output: los partidos de ambas jornadas
+Necesito una función que me regrese en una lista los partidos de dos jornadas
+*/
+dame_partidos_dos_jornadas(Jornada_a, Jornada_b, Partidos):-
+   dame_partidos_jornada(Jornada_a, Partidos_a),
+   dame_partidos_jornada(Jornada_b, Partidos_b),
+   append(Partidos_a, Partidos_b, Partidos).
+
+escribe_partidos_auxiliares(_, _, _, _, []):- !.
+escribe_partidos_auxiliares(Equipo_inicial, Jornada_a, Jornada_b, Equipos_to_move, [Partido | Resto_partidos]):-
+   escribe_partidos_auxiliares(Equipo_inicial, Jornada_a, Jornada_b, Equipos_to_move, Resto_partidos),
+   dame_equipos_partido(Partido, [Equipo_1, Equipo_2]),
+   (member(Equipo_1, Equipos_to_move) ->
+      dame_num_jornada_partido(Partido, Num_jornada),
+      dame_hora_partido(Partido, Hora),
+      dame_dia_partido(Partido, Dia),
+      dame_nueva_jornada(Num_jornada, Jornada_a, Jornada_b, Nueva_jornada),
+      retract(partido(Partido)),
+      asserta(partido_aux([[Equipo_1, Equipo_2], Nueva_jornada, Dia, Hora]))
+      ;
+      true
+   ).
+
+/*
+Esta función estática se encarga de reemplazar los partidos auxiliares por partidos normales.
+Al final elimina los partidos que no se necesitan.
+*/
 add_partidos_aux_to_partidos:-
-   partido_aux(Partido_aux),
+   dame_lista_partidos_aux(Partidos_auxiliares),
+   elimina_partidos_auxiliares(Partidos_auxiliares).
+
+dame_lista_partidos_aux(Partidos_auxiliares):-
+   findall(X, partido_aux(X), Partidos_auxiliares).
+
+elimina_partidos_auxiliares([]):- !.
+elimina_partidos_auxiliares([Partido_aux | Resto_partidos_auxiliares]):-
+   elimina_partidos_auxiliares(Resto_partidos_auxiliares),
    asserta(partido(Partido_aux)),
    retract(partido_aux(Partido_aux)).
+
+
+cambia_partidos_entre_jornadas_oficial(Equipo_inicial, Jornada_a, Jornada_b):-
+   /* Saco los partidos de las jornadas que nos interesan */
+   dame_partidos_dos_jornadas(Jornada_a, Jornada_b, Partidos_a_cambiar),
+   find_teams_to_move(Equipo_inicial, Jornada_a, Jornada_b, Equipos),
+   escribe_partidos_auxiliares(Equipo_inicial, Jornada_a, Jornada_b, Equipos, Partidos_a_cambiar),
+   add_partidos_aux_to_partidos.
 
 cambia_partidos_entre_jornadas(Equipo_inicial, Jornada_a, Jornada_b):-
    crea_partidos_auxiliares(Equipo_inicial, Jornada_a, Jornada_b),
