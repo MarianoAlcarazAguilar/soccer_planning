@@ -1,5 +1,6 @@
 :- dynamic combinacion_equipos/1.
 :- dynamic partido/1.
+:- dynamic combinacion_usada_jornada/2.
 
 /*************************************************
 Estas funciones se tienen que eliminar
@@ -81,6 +82,9 @@ elimina_combinaciones:-
 elimina_partidos:-
    retractall(partido(_)).
 
+elimina_combinacion_usada_jornada:-
+   retractall(combinacion_usada_jornada(_)).
+
 /* Esta función regresa los nombres de los equipos que ya están en una jornada, para asegurarnos que un nuevo partido sí puede entrar */
 dame_nombres_equipos_jornada(Num_jornada, Equipos):-
    saca_equipos_una_jornada(Num_jornada, Aux_equipos),
@@ -101,11 +105,13 @@ elige_combinacion_aleatoria(Combinacion_aleatoria):-
    dame_lista_combinaciones_equipos(X),
    random_member(Combinacion_aleatoria, X).
 
+/* Función que regresa los nombres de los equipos dada una combinación */
 dame_equipos_de_combinacion([Equipo_1, Equipo_2], Equipo_1, Equipo_2).
 
 limpia:-
    elimina_partidos,
    elimina_combinaciones,
+   elimina_combinacion_usada_jornada,
    genera_combinaciones.
 
 /* Si es 11, sabemos que ya metimos 10 partidos, entonces ya acabamos esa jornada */
@@ -118,7 +124,6 @@ agrega_partidos_a_jornada(Num_jornada, Num_partido):-
    /* Segundo, vemos si esos equipos ya están jugando en la jornada especificada */
    (not(member(Equipo_1, Equipos_ya_participantes)),
     not(member(Equipo_2, Equipos_ya_participantes)) ->
-      write('Equipos distintos'),nl,
       /* Si ninguno de los dos equipos está en la jornada, entonces sí los metemos */
       elige_dia_aleatorio(Dia),
       elige_hora_aleatorio(Hora),
@@ -130,15 +135,14 @@ agrega_partidos_a_jornada(Num_jornada, Num_partido):-
       agrega_partidos_a_jornada(Num_jornada, Otro_otro_num),
       !
       ;
-         write('Equipos iguales'),nl,
          /* Si alguno de los dos equipos sí esta en la jornada ya, no los podemos meter, 
          entonces volvemos a llamar a la función sin aumentar el número de partidos */
          agrega_partidos_a_jornada(Num_jornada, Num_partido)
    ).
 
 /* Vamos a optimizar esta madre */
-agrega_optimizado(_, 11):- !.
-agrega_optimizado(Num_jornada, Num_partido):-
+agrega_optimizado(_, 11, _):- !.
+agrega_optimizado(Num_jornada, Num_partido, Num_iteracion):-
    /* Vemos qué equipos YA ESTÁN jugando en la jornada: Equipos_ya_participantes */
    dame_nombres_equipos_jornada(Num_jornada, Equipos_ya_participantes),
    /* Vemos qué equipos FALTAN en la jornada: Equipos_faltantes */
@@ -148,33 +152,50 @@ agrega_optimizado(Num_jornada, Num_partido):-
    random_member(Equipo_1, Equipos_faltantes),
    delete(Equipos_faltantes, Equipo_1, Equipos_faltantes_2),
    random_member(Equipo_2, Equipos_faltantes_2),
-   write(Equipo_1),write(' '),
-   write(Equipo_2),nl,
+   length(Equipos_faltantes, Size),
    /* Ahora tenemos que ver si esa combinación se puede meter todavía;
    Si existe la combinación, meto el partido, sino no */
    (existe_combinacion_equipos(Equipo_1, Equipo_2) ->
       elige_dia_aleatorio(Dia),
       elige_hora_aleatorio(Hora),
       assertz(partido([[Equipo_1, Equipo_2], Num_jornada, Dia, Hora])),
+      assertz(combinacion_usada_jornada([[Equipo_1, Equipo_2], Num_jornada])),
       elimina_combinacion(Equipo_1, Equipo_2),
       Otro_num is Num_partido + 1,
-      agrega_optimizado(Num_jornada, Otro_num),
+      Aux_iter_1 is Num_iteracion + 1,
+      agrega_optimizado(Num_jornada, Otro_num, Aux_iter_1),
       !
-      ;
-         agrega_optimizado(Num_jornada, Num_partido)
+      ;  
+         (Size == 2 ->
+            /* En este punto ya estamos atorados, por lo que es necesario reinciar la jornada dada */
+            write('me desatoro'),nl,
+            reinicia_combinaciones_usadas(Num_jornada),
+            Aux_iter_2 is Num_iteracion + 1,
+            agrega_optimizado(Num_jornada, 1, Aux_iter_2)
+            ;
+               (Num_iteracion == 1000 ->
+                  write('me desatoro por 1000'),nl,
+                  reinicia_combinaciones_usadas(Num_jornada),
+                  agrega_optimizado(Num_jornada, 1, 1)
+                  ;
+                     Aux_iter_3 is Num_iteracion + 1,
+                     agrega_optimizado(Num_jornada, Num_partido, Aux_iter_3)
+               )
+         )
    ).
 
-genera_vuelta_aleatoria:-
+genera_vuelta:-
    limpia,
-   genera_vuelta_aleatoria(1).
-genera_vuelta_aleatoria(20):- !.
-genera_vuelta_aleatoria(Num_jornada):-
-   agrega_partidos_a_jornada(Num_jornada, 1),
+   genera_vuelta(1).
+genera_vuelta(20):- !.
+genera_vuelta(Num_jornada):-
+   write(Num_jornada),nl,
+   agrega_optimizado(Num_jornada, 1, 1),
    Sig_jornada is Num_jornada + 1,
-   genera_vuelta_aleatoria(Sig_jornada).
+   genera_vuelta(Sig_jornada).
 
-%dame_contrincantes_restantes(Equipo_buscado, Contrincantes):-
 
+/* Esta función te regresa true si existe una combinación disponible de los equipos dados */
 existe_combinacion_equipos(Equipo_1, Equipo_2):-
    combinacion_equipos([Equipo_1, Equipo_2]),
    !.
@@ -183,6 +204,7 @@ existe_combinacion_equipos(Equipo_1, Equipo_2):-
    combinacion_equipos([Equipo_2, Equipo_1]),
    !.
 
+/* Esta función elimina una combinación de dos equipos dados si esta existe */
 elimina_combinacion(Equipo_1, Equipo_2):-
    existe_combinacion_equipos(Equipo_1, Equipo_2),
    combinacion_equipos([Equipo_1, Equipo_2]),
@@ -193,3 +215,21 @@ elimina_combinacion(Equipo_1, Equipo_2):-
    combinacion_equipos([Equipo_2, Equipo_1]),
    retract(combinacion_equipos([Equipo_2, Equipo_1])),
    !.
+
+/*
+Necesito una función que reinicie los partidos usados en una jornada dada
+*/
+dame_combinaciones_usadas_en_jornada(Num_jornada, Usadas):-
+   findall(X, combinacion_usada_jornada([X, Num_jornada]), Usadas).
+
+reinicia_combinaciones_usadas(_, []):- !.
+reinicia_combinaciones_usadas(Num_jornada, [Combinacion_usada | Resto_combinaciones]):-
+   reinicia_combinaciones_usadas(Num_jornada, Resto_combinaciones),
+   assertz(combinacion_equipos(Combinacion_usada)),
+   retract(combinacion_usada_jornada([Combinacion_usada, Num_jornada])),
+   retract(partido([Combinacion_usada, Num_jornada, _, _])).
+
+reinicia_combinaciones_usadas(Num_jornada):-
+   dame_combinaciones_usadas_en_jornada(Num_jornada, Usadas),
+   reinicia_combinaciones_usadas(Num_jornada, Usadas).
+
