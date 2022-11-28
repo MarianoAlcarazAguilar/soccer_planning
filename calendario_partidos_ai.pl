@@ -279,8 +279,9 @@ PASO 3: Calificar una vuelta
 /*Función que te regresa la temporada como una lista */
 
 temporada_lista(Lista):-
-   assert_jornadas,
-   findall(X, jornada(X), Lista).
+   assert_jornadas.
+   %findall(X, jornada(X), Lista),
+   %retractall(jornada(_)).
 
 /*Agrega todas las jornadas como auxiliares*/
 assert_jornadas:-
@@ -288,11 +289,38 @@ assert_jornadas:-
 
 assert_jornadas(20):-!.
 assert_jornadas(Cont):-
+   Z is Cont+1,
+   assert_jornadas(Z),
    partido([_, Cont,_,_]),
    jornada_a_lista(Cont, Jornada),
-   assert(jornada(Jornada)),
-   Z is (Cont+1),
-   assert_jornadas(Z).
+   assert(jornada(Jornada)).
+
+
+temporada_a_lista([J1, J2, J3, J4, J5, J6, J7, J8, J9, J10, J11, J12, J13, J14, J15, J16, J17, J18, J19]):-
+   jornada_a_lista(1, J1),
+   jornada_a_lista(2, J2),
+   jornada_a_lista(3, J3),
+   jornada_a_lista(4, J4),
+   jornada_a_lista(5, J5),
+   jornada_a_lista(6, J6),
+   jornada_a_lista(7, J7),
+   jornada_a_lista(8, J8),
+   jornada_a_lista(9, J9),
+   jornada_a_lista(10, J10),
+   jornada_a_lista(11, J11),
+   jornada_a_lista(12, J12),
+   jornada_a_lista(13, J13),
+   jornada_a_lista(14, J14),
+   jornada_a_lista(15, J15),
+   jornada_a_lista(16, J16),
+   jornada_a_lista(17, J17),
+   jornada_a_lista(18, J18),
+   jornada_a_lista(19, J19).
+   
+
+
+
+   
 
 
 
@@ -875,6 +903,7 @@ PASO 5: Implementación final
 *********************/
 
 main:-
+<<<<<<< HEAD
    genera_vuelta.
 
 crea_jornadas_listas:-
@@ -889,3 +918,8 @@ dame_jornadas_en_lista(Lista):-
    crea_jornadas_listas,
    findall(X, jornada(X), Lista),
    retractall(jornada(X)).
+=======
+   genera_vuelta,
+   temporada_a_lista(Lista),
+   write(Lista).
+>>>>>>> dc65209 (Cambios)

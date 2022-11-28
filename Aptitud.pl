@@ -82,9 +82,9 @@ temporada_lista(Lista):-
 
 /*Agrega todas las jornadas como auxiliares*/
 assert_jornadas:-
-    assert_jornadas(1).
+    assert_jornadas(16).
 
-assert_jornadas(20):-!.
+assert_jornadas(18):-!.
 assert_jornadas(Cont):-
     partido([_, Cont,_,_]),
     jornada_a_lista(Cont, Jornada),
