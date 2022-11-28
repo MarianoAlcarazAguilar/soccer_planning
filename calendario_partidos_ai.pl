@@ -7,36 +7,9 @@
 :- use_module(library(solution_sequences)).
 :- use_module(library(random)).
 :- dynamic combinacion_equipos/1.
-:- dynamic combinacion_usada_jornada/2.
+:- dynamic combinacion_usada_jornada/1.
 :- dynamic to_be_moved/1.
 :- dynamic partido_aux/1.
-
-
-/*************************************************
-Estas funciones se tienen que eliminar
-*************************************************/
-saca_equipos_una_jornada(Jornada, Equipos):-
-   dame_partidos_jornada(Jornada, Partidos),
-   recorre_partidos(Partidos, Equipos).
-
-
-recorre_partidos([], []):- !.
-recorre_partidos([[Equipos, _, _, _] | Resto_partidos], [Equipos | Resto_equipos]):-
-   recorre_partidos(Resto_partidos, Resto_equipos).
-
-dame_partidos_jornada(Numero_jornada, Partidos):-
-   findall(Partido, dame_partidos_jornada_aux(Numero_jornada, Partido), Partidos).
-
-dame_partidos_jornada_aux(Numero_jornada, Partido):-
-   partido(Partido),
-   dame_num_jornada_partido(Partido, Numero_jornada_aux),
-   Numero_jornada_aux == Numero_jornada.
-
-dame_num_jornada_partido([_, Num_jornada, _, _], Num_jornada).
-
-/*************************************************
-Eliminar hasta aquí
-*************************************************/
 
 
 /*************************
@@ -273,6 +246,13 @@ genera_vuelta(Num_jornada):-
    write(Num_jornada),nl,
    Sig_jornada is Num_jornada + 1,
    (genera_vuelta(Sig_jornada) -> true; write('Repitiendo Vuelta'),nl,genera_vuelta, !).
+
+/* dame_num_jornada_partido(input, output)
+   donde:
+      input: el partido del cual se desea extraer el número de jornada
+      output: el número de jornada del partido en cuestión
+*/
+dame_num_jornada_partido([_, Num_jornada, _, _], Num_jornada).
 
 
 /**********************
@@ -597,14 +577,6 @@ mutacion([[E1, E2], Jor, Dia, Hora]):-
     asserta(partido([[E1, E2], Jor, DiaR, HoraR])).
 
 
-/* dame_num_jornada_partido(input, output)
-   donde:
-      input: el partido del cual se desea extraer el número de jornada
-      output: el número de jornada del partido en cuestión
-*/
-dame_num_jornada_partido([_, Num_jornada, _, _], Num_jornada).
-
-
 /* dame_hora_partido(input, output)
    donde:
       input: el partido del cual se desea extraer la hora
@@ -867,3 +839,11 @@ cambia_partidos_entre_jornadas(Equipo_inicial, Jornada_a, Jornada_b):-
    add_partidos_aux_to_partidos.
    
 cambia_partidos_entre_jornadas(_, _, _).
+
+
+/********************
+PASO 5: Implementación final
+*********************/
+
+main:-
+   genera_vuelta.

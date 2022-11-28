@@ -1,6 +1,6 @@
 :- dynamic combinacion_equipos/1.
 :- dynamic partido/1.
-:- dynamic combinacion_usada_jornada/2.
+:- dynamic combinacion_usada_jornada/1.
 
 /*************************************************
 Estas funciones se tienen que eliminar
