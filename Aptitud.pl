@@ -268,11 +268,9 @@ peor_entre_partidos(Part1, Part2, Part1):-
 peor_entre_partidos(_,Part2, Part2).
 
 
-/*Dada una jornada, regresa el número de la jornada*/
-num_jornada([[_,X|_]|_], X).
+%peor_partido_j().
 
-/*Regresa un equipo de un partido*/
-equipo_partido([[X,_]|_],X).
+
 
 /*MUTACIÓN*/
 

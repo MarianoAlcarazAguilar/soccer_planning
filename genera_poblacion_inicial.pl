@@ -51,13 +51,6 @@ equipo([wolves, 10, 1.1, wolverhampton, 'Molineux Stadium']).
 equipo([nottm_forest, 20, 0.549, west_bridgford, 'City Ground']).
 equipo([leeds_united, 17, 0.99, leeds, 'Elland Road']).
 
-/*
-partido([[man_city, brentford], 16, viernes, 5]).
-partido([[liverpool, southampton], 16, viernes, 5]).
-partido([[bournemouth, everton], 16, viernes, 5]).
-partido([[west_ham, leicester_city], 16, viernes, 5]).
-partido([[tottenham, leeds_united], 16, viernes, 5]).
-*/
 
 /* Regresa una lista con los nombres de todos los equipos */
 dame_nombres_equipos(Equipos):-
@@ -125,7 +118,7 @@ agrega_partidos_a_jornada(Num_jornada, Num_partido):-
    /* Segundo, vemos si esos equipos ya están jugando en la jornada especificada */
    (not(member(Equipo_1, Equipos_ya_participantes)),
     not(member(Equipo_2, Equipos_ya_participantes)) ->
-      write(Equipo_1),write(' '),write(Equipo_2),nl,
+      write('Equipos distintos'),nl,
       /* Si ninguno de los dos equipos está en la jornada, entonces sí los metemos */
       elige_dia_aleatorio(Dia),
       elige_hora_aleatorio(Hora),
@@ -137,7 +130,66 @@ agrega_partidos_a_jornada(Num_jornada, Num_partido):-
       agrega_partidos_a_jornada(Num_jornada, Otro_otro_num),
       !
       ;
+         write('Equipos iguales'),nl,
          /* Si alguno de los dos equipos sí esta en la jornada ya, no los podemos meter, 
          entonces volvemos a llamar a la función sin aumentar el número de partidos */
          agrega_partidos_a_jornada(Num_jornada, Num_partido)
    ).
+
+/* Vamos a optimizar esta madre */
+agrega_optimizado(_, 11):- !.
+agrega_optimizado(Num_jornada, Num_partido):-
+   /* Vemos qué equipos YA ESTÁN jugando en la jornada: Equipos_ya_participantes */
+   dame_nombres_equipos_jornada(Num_jornada, Equipos_ya_participantes),
+   /* Vemos qué equipos FALTAN en la jornada: Equipos_faltantes */
+   dame_nombres_equipos(All_teams),
+   subtract(All_teams, Equipos_ya_participantes, Equipos_faltantes),
+   /* Elegimos DOS de los equipos faltantes: Equipo_1 y Equipo_2 */
+   random_member(Equipo_1, Equipos_faltantes),
+   delete(Equipos_faltantes, Equipo_1, Equipos_faltantes_2),
+   random_member(Equipo_2, Equipos_faltantes_2),
+   write(Equipo_1),write(' '),
+   write(Equipo_2),nl,
+   /* Ahora tenemos que ver si esa combinación se puede meter todavía;
+   Si existe la combinación, meto el partido, sino no */
+   (existe_combinacion_equipos(Equipo_1, Equipo_2) ->
+      elige_dia_aleatorio(Dia),
+      elige_hora_aleatorio(Hora),
+      assertz(partido([[Equipo_1, Equipo_2], Num_jornada, Dia, Hora])),
+      elimina_combinacion(Equipo_1, Equipo_2),
+      Otro_num is Num_partido + 1,
+      agrega_optimizado(Num_jornada, Otro_num),
+      !
+      ;
+         agrega_optimizado(Num_jornada, Num_partido)
+   ).
+
+genera_vuelta_aleatoria:-
+   limpia,
+   genera_vuelta_aleatoria(1).
+genera_vuelta_aleatoria(20):- !.
+genera_vuelta_aleatoria(Num_jornada):-
+   agrega_partidos_a_jornada(Num_jornada, 1),
+   Sig_jornada is Num_jornada + 1,
+   genera_vuelta_aleatoria(Sig_jornada).
+
+%dame_contrincantes_restantes(Equipo_buscado, Contrincantes):-
+
+existe_combinacion_equipos(Equipo_1, Equipo_2):-
+   combinacion_equipos([Equipo_1, Equipo_2]),
+   !.
+
+existe_combinacion_equipos(Equipo_1, Equipo_2):-
+   combinacion_equipos([Equipo_2, Equipo_1]),
+   !.
+
+elimina_combinacion(Equipo_1, Equipo_2):-
+   existe_combinacion_equipos(Equipo_1, Equipo_2),
+   combinacion_equipos([Equipo_1, Equipo_2]),
+   retract(combinacion_equipos([Equipo_1, Equipo_2])),
+   !.
+elimina_combinacion(Equipo_1, Equipo_2):-
+   existe_combinacion_equipos(Equipo_1, Equipo_2),
+   combinacion_equipos([Equipo_2, Equipo_1]),
+   retract(combinacion_equipos([Equipo_2, Equipo_1])),
+   !.
