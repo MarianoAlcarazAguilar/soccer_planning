@@ -12,6 +12,24 @@
 :- dynamic partido_aux/1.
 
 
+/* Ahora creamos una función que escriba todos los partidos a un archivo CSV */ 
+dame_lista_todos_los_partidos(All_partidos):-
+   findall(X, partido(X), All_partidos).
+
+write_partidos(_, []):- !.
+write_partidos(Out, [Partido | Resto]):-
+   write_partidos(Out, Resto),
+   write(Out, Partido),
+   write(Out, '\n').
+
+write_partidos:-
+   dame_lista_todos_los_partidos(Partidos),
+   open('vuelta_encontrada.csv', write, Out),
+   write(Out, 'Partido\n'),
+   write_partidos(Out, Partidos),
+   close(Out).
+
+
 /*************************
 PASO 1: Meter todos los datos de los equipos
 Almacena: nombre de equipo, posición temporada pasada, seguidores, ciudad, estadio
@@ -237,13 +255,11 @@ reinicia_combinaciones_usadas(Num_jornada):-
 /* Métod para generar una vuelta aleatorioa */
 genera_vuelta:-
    limpia,
-   genera_vuelta(1),
-   write('Vuelta Terminada'),nl.
+   genera_vuelta(1).
 
 genera_vuelta(20):- !.
 genera_vuelta(Num_jornada):-
    agrega_optimizado(Num_jornada, 1, 1, 0),
-   write(Num_jornada),nl,
    Sig_jornada is Num_jornada + 1,
    (genera_vuelta(Sig_jornada) -> true; write('Repitiendo Vuelta'),nl,genera_vuelta, !).
 
