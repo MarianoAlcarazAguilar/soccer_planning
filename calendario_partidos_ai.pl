@@ -903,7 +903,6 @@ PASO 5: Implementación final
 *********************/
 
 main:-
-<<<<<<< HEAD
    genera_vuelta.
 
 crea_jornadas_listas:-
@@ -912,14 +911,11 @@ crea_jornadas_listas:-
 crea_jornadas_listas(20):- !.
 crea_jornadas_listas(Num_jornada):-
    dame_partidos_jornada(Num_jornada, Jornada),
-   asserta(jornada(Jornada)).
+   asserta(jornada(Jornada)),
+   Aux_num is Num_jornada + 1,
+   crea_jornadas_listas(Aux_num).
 
 dame_jornadas_en_lista(Lista):-
    crea_jornadas_listas,
    findall(X, jornada(X), Lista),
    retractall(jornada(X)).
-=======
-   genera_vuelta,
-   temporada_a_lista(Lista),
-   write(Lista).
->>>>>>> dc65209 (Cambios)
