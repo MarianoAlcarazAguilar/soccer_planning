@@ -7,7 +7,7 @@
 :- dynamic horario/1.
 :- use_module(library(solution_sequences)).
 :- use_module(library(random)).
-
+/*Hola*/
 % Almacena: nombre de equipo, posición temporada pasada, seguidores, ciudad, estadio
 
 equipo([arsenal, 5, 20, londres, 'Emirates Stadium']).
