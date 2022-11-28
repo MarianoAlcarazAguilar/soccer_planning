@@ -141,8 +141,9 @@ agrega_partidos_a_jornada(Num_jornada, Num_partido):-
    ).
 
 /* Vamos a optimizar esta madre */
-agrega_optimizado(_, 11, _):- !.
-agrega_optimizado(Num_jornada, Num_partido, Num_iteracion):-
+agrega_optimizado(_, 11, _, _):- !.
+agrega_optimizado(Num_jornada, Num_partido, Num_iteracion, Num_desatoracion):-
+   (Num_desatoracion == 50 -> fail; true),
    /* Vemos qué equipos YA ESTÁN jugando en la jornada: Equipos_ya_participantes */
    dame_nombres_equipos_jornada(Num_jornada, Equipos_ya_participantes),
    /* Vemos qué equipos FALTAN en la jornada: Equipos_faltantes */
@@ -163,23 +164,22 @@ agrega_optimizado(Num_jornada, Num_partido, Num_iteracion):-
       elimina_combinacion(Equipo_1, Equipo_2),
       Otro_num is Num_partido + 1,
       Aux_iter_1 is Num_iteracion + 1,
-      agrega_optimizado(Num_jornada, Otro_num, Aux_iter_1),
+      agrega_optimizado(Num_jornada, Otro_num, Aux_iter_1, Num_desatoracion),
       !
       ;  
          (Size == 2 ->
             /* En este punto ya estamos atorados, por lo que es necesario reinciar la jornada dada */
-            write('me desatoro'),nl,
             reinicia_combinaciones_usadas(Num_jornada),
             Aux_iter_2 is Num_iteracion + 1,
-            agrega_optimizado(Num_jornada, 1, Aux_iter_2)
+            agrega_optimizado(Num_jornada, 1, Aux_iter_2, Num_desatoracion)
             ;
                (Num_iteracion == 1000 ->
-                  write('me desatoro por 1000'),nl,
                   reinicia_combinaciones_usadas(Num_jornada),
-                  agrega_optimizado(Num_jornada, 1, 1)
+                  Aux_desatoracion is Num_desatoracion + 1,
+                  agrega_optimizado(Num_jornada, 1, 1, Aux_desatoracion)
                   ;
                      Aux_iter_3 is Num_iteracion + 1,
-                     agrega_optimizado(Num_jornada, Num_partido, Aux_iter_3)
+                     agrega_optimizado(Num_jornada, Num_partido, Aux_iter_3, Num_desatoracion)
                )
          )
    ).
@@ -225,11 +225,11 @@ reinicia_combinaciones_usadas(Num_jornada):-
 /* Métod para generar una vuelta aleatorioa */
 genera_vuelta:-
    limpia,
-   genera_vuelta(1).
-   
+   genera_vuelta(1),
+   write('Vuelta Terminada'),nl.
+
 genera_vuelta(20):- !.
 genera_vuelta(Num_jornada):-
-   write(Num_jornada),nl,
-   agrega_optimizado(Num_jornada, 1, 1),
+   agrega_optimizado(Num_jornada, 1, 1, 0),
    Sig_jornada is Num_jornada + 1,
-   genera_vuelta(Sig_jornada).
+   (genera_vuelta(Sig_jornada) -> true; write('Repitiendo Vuelta'),nl,genera_vuelta, !).
