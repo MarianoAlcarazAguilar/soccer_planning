@@ -887,12 +887,15 @@ mainmut:-
    mutacion(RandomP),
    dame_jornadas_en_lista(NuevaLista),
    rating_vuelta(NuevaLista, Rating),
-   (  Rating < 0.6
+   (  Rating < 0.62
    -> mainmut
    ;  fin(NuevaLista, Rating)
    ).
 
 fin(Lista, Rating):-
+   write('Temporada final'),
+   write(Lista),
+   writeln(''),
    write('Rating final'),
    write(" "),
    write(Rating).
