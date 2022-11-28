@@ -876,3 +876,16 @@ PASO 5: Implementación final
 
 main:-
    genera_vuelta.
+
+crea_jornadas_listas:-
+   crea_jornadas_listas(1).
+
+crea_jornadas_listas(20):- !.
+crea_jornadas_listas(Num_jornada):-
+   dame_partidos_jornada(Num_jornada, Jornada),
+   asserta(jornada(Jornada)).
+
+dame_jornadas_en_lista(Lista):-
+   crea_jornadas_listas,
+   findall(X, jornada(X), Lista),
+   retractall(jornada(X)).
