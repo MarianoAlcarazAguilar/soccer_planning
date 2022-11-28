@@ -275,33 +275,11 @@ dame_num_jornada_partido([_, Num_jornada, _, _], Num_jornada).
 /**********************
 PASO 3: Calificar una vuelta
 **********************/
-/*Función que te regresa la temporada como una lista */
-
-/*Función que te regresa la temporada como una lista */
-
-
-/*Agrega todas las jornadas como auxiliares*/
-assert_jornadas:-
-   assert_jornadas(1).
-
-assert_jornadas(20):-!.
-assert_jornadas(Cont):-
-   Z is Cont+1,
-   assert_jornadas(Z),
-   partido([_, Cont,_,_]),
-   jornada_a_lista(Cont, Jornada),
-   assert(jornada(Jornada)).
-
 
 /*Devuelve jornada como lista*/
 jornada_a_lista(NumJornada, Lista):-
    dame_partidos_jornada(NumJornada, Partidos),
    Lista = Partidos.
-
-aux_vuelta(X):-
-   jornada_a_lista(16,Y),
-   jornada_a_lista(17,Z),
-   X = [Y,Z].
 
 /*Función heurística de partidos.*/
 /*Evalúa entre 0 y 1 un partido individual*/
