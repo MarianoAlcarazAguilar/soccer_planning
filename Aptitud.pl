@@ -365,7 +365,8 @@ partido_rep_horario(Jornada, X):-
     (  Len < 10
     -> X is 0
     ;  X = 1
-    ).
+    ),
+    retractall(horario(_)).
 
 
 assert_horario([]).
