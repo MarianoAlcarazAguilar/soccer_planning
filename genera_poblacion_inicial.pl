@@ -184,17 +184,6 @@ agrega_optimizado(Num_jornada, Num_partido, Num_iteracion):-
          )
    ).
 
-genera_vuelta:-
-   limpia,
-   genera_vuelta(1).
-genera_vuelta(20):- !.
-genera_vuelta(Num_jornada):-
-   write(Num_jornada),nl,
-   agrega_optimizado(Num_jornada, 1, 1),
-   Sig_jornada is Num_jornada + 1,
-   genera_vuelta(Sig_jornada).
-
-
 /* Esta función te regresa true si existe una combinación disponible de los equipos dados */
 existe_combinacion_equipos(Equipo_1, Equipo_2):-
    combinacion_equipos([Equipo_1, Equipo_2]),
@@ -233,3 +222,14 @@ reinicia_combinaciones_usadas(Num_jornada):-
    dame_combinaciones_usadas_en_jornada(Num_jornada, Usadas),
    reinicia_combinaciones_usadas(Num_jornada, Usadas).
 
+/* Métod para generar una vuelta aleatorioa */
+genera_vuelta:-
+   limpia,
+   genera_vuelta(1).
+   
+genera_vuelta(20):- !.
+genera_vuelta(Num_jornada):-
+   write(Num_jornada),nl,
+   agrega_optimizado(Num_jornada, 1, 1),
+   Sig_jornada is Num_jornada + 1,
+   genera_vuelta(Sig_jornada).
