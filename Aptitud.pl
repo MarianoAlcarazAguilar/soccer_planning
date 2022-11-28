@@ -82,9 +82,9 @@ temporada_lista(Lista):-
 
 /*Agrega todas las jornadas como auxiliares*/
 assert_jornadas:-
-    assert_jornadas(16).
+    assert_jornadas(1).
 
-assert_jornadas(18):-!.
+assert_jornadas(20):-!.
 assert_jornadas(Cont):-
     partido([_, Cont,_,_]),
     jornada_a_lista(Cont, Jornada),
@@ -133,13 +133,20 @@ rating_jornada_numjornada(NumJornada, Res):-
 
 /*Regresa una lista ordenada del valor de cada jornada considerando la fecha*/
 
-rating_vuelta_lista([], []).
+rating_vuelta(Vuelta, Res):-
+    rating_vuelta_lista(Vuelta, Lista),
+    sumlist(Lista, Suma),
+    length(Lista, Len),
+    Res is ((Suma)/Len).
+
+rating_vuelta_lista([], []):- !.
 rating_vuelta_lista([Cab|Resto], [CabRes|Cola]):-
+    rating_vuelta_lista(Resto, Cola),
     rating_jornada(Cab, Rat),
     get_head(Cab,[[_,_], NumJornada,_,_]),
     check_numjor(NumJornada, Z),
-    CabRes is (Rat*Z),
-    rating_vuelta_lista(Resto, Cola).   
+    CabRes is (Rat*Z).
+      
 
 rating_jornada(Jornada, Res):-
     suma_jornada(Jornada, Sum),
@@ -171,7 +178,8 @@ seguidores([Eq1, Eq2], Res):-
 dif_lugares([Eq1, Eq2], Res):-
     equipo([Eq1, X, _, _, _]),
     equipo([Eq2, Y, _, _, _]),
-    abs(X-Y, Z),
+    W is X-Y,
+    abs(W, Z),
     Res is ((20/19) - (Z/19)).
 
 prom_lugares([Eq1, Eq2], Res):-
@@ -180,7 +188,7 @@ prom_lugares([Eq1, Eq2], Res):-
     Res is ((41/39) - ((X+Y)/39)).
 
 /*Contar partidos mayores a 6.5*/
-may_65([],0).
+may_65([],0):-!.
 may_65([Cab|Cola], Res) :-
     get_head(Cab, Partido),
     rating_partido(Partido, Rat),
@@ -191,7 +199,7 @@ may_65([Cab|Cola], Res) :-
     ).
 
 /*Contar partidos entre 5 y 6.5*/
-may_50([],0).
+may_50([],0):-!.
 may_50([Cab|Cola], Res) :-
     get_head(Cab, Partido),
     rating_partido(Partido, Rat),
@@ -203,14 +211,17 @@ may_50([Cab|Cola], Res) :-
 
 if_cont_1(Num, Res):-
     Num >= 1,
-    Res is 1.
+    Res is 1,
+    !.
 if_cont_1(Num, Res):-
     Num =:= 0,
     Res is 0.
 
 if_cont_2(Num, Res):-
     Num >= 2,
-    Res is 1.
+    Res is 1,
+    !.
+
 if_cont_2(Num, Res):-
     Num < 2,
     Res is 0.
@@ -218,9 +229,10 @@ if_cont_2(Num, Res):-
 
 
 /*Regresa la suma de los ratings de los 10 partidos de una jornada*/
-suma_jornada([], 0).
+suma_jornada([], 0):-!.
 
 suma_jornada([Cab|Cola], Res):-
+    suma_jornada(Cola, Resto),
     get_head(Cab, Partido),
     rating_partido(Partido, Rat),
     get_tail(Cab, Hora), /*Hora del partido*/
@@ -228,7 +240,6 @@ suma_jornada([Cab|Cola], Res):-
     check_hora(Hora, H1),
     check_dia(Dia, D1),
     RatingFinal is (0.8*Rat + (H1 + D1)*0.2),
-    suma_jornada(Cola, Resto),
     Res is RatingFinal+Resto.
 
 check_hora(Hora, Res):-
@@ -252,9 +263,9 @@ prom(Suma, Term, Res):-
 
 /*Función de valor absoluto*/
 abs(X, X):-
-    X >= 0.
+    X >= 0,
+    !.
 abs(X,Y):-
-    X<0, 
     Y is (-1*X).
 
  % Pequeña función para obtener la cabeza y cola de una lista de forma sencilla.
@@ -296,7 +307,7 @@ check_numjor(NumJornada, Res):-
 
 /*Encuentra la mejor jornada de una vuelta*/
 
-mejor_jornada([Cab], Cab).
+mejor_jornada([Cab], Cab):-!.
 mejor_jornada([CabVuelta|ColaVuelta], Mejor):-
     mejor_jornada(ColaVuelta, MejorCola),
     mejor_entre_jornadas(CabVuelta, MejorCola, MejActual),
@@ -369,7 +380,7 @@ partido_rep_horario(Jornada, X):-
     retractall(horario(_)).
 
 
-assert_horario([]).
+assert_horario([]):-!.
 assert_horario([Cab|Cola]):-
     dia(Cab, Dia),
     hora(Cab, Hora),

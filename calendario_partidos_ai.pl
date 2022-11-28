@@ -276,239 +276,252 @@ PASO 3: Calificar una vuelta
 **********************/
 /*Función que te regresa la temporada como una lista */
 
+/*Función que te regresa la temporada como una lista */
+
 temporada_lista(Lista):-
-    assert_jornadas,
-    findall(X, jornada(X), Lista).
+   assert_jornadas,
+   findall(X, jornada(X), Lista).
 
 /*Agrega todas las jornadas como auxiliares*/
 assert_jornadas:-
-    assert_jornadas(16).
+   assert_jornadas(1).
 
-assert_jornadas(18):-!.
+assert_jornadas(20):-!.
 assert_jornadas(Cont):-
-    partido([_, Cont,_,_]),
-    jornada_a_lista(Cont, Jornada),
-    assert(jornada(Jornada)),
-    Z is (Cont+1),
-    assert_jornadas(Z).
+   partido([_, Cont,_,_]),
+   jornada_a_lista(Cont, Jornada),
+   assert(jornada(Jornada)),
+   Z is (Cont+1),
+   assert_jornadas(Z).
 
 
 
 
 /*Devuelve jornada como lista*/
 jornada_a_lista(NumJornada, Lista):-
-    dame_partidos_jornada(NumJornada, Partidos),
-    Lista = Partidos.
+   dame_partidos_jornada(NumJornada, Partidos),
+   Lista = Partidos.
 
 aux_vuelta(X):-
-    jornada_a_lista(16,Y),
-    jornada_a_lista(17,Z),
-    X = [Y,Z].
+   jornada_a_lista(16,Y),
+   jornada_a_lista(17,Z),
+   X = [Y,Z].
 
 /*Función heurística de partidos.*/
 /*Evalúa entre 0 y 1 un partido individual*/
 
 rating_partido([Eq1, Eq2], Rating):-
-    es_derby([Eq1, Eq2], Derby),
-    seguidores([Eq1, Eq2], Seg),
-    dif_lugares([Eq1, Eq2], Dif),
-    prom_lugares([Eq1, Eq2], Prom),
-    Rating is (((Derby*0.1) + (Seg*0.2) + (Dif*0.3) + (Prom*0.4))).
+   es_derby([Eq1, Eq2], Derby),
+   seguidores([Eq1, Eq2], Seg),
+   dif_lugares([Eq1, Eq2], Dif),
+   prom_lugares([Eq1, Eq2], Prom),
+   Rating is (((Derby*0.1) + (Seg*0.2) + (Dif*0.3) + (Prom*0.4))).
 
 /*Evalúa entre 0 y 1 una jornada*/
 /*Recibe número de la jornada y regresa el rating*/
 rating_jornada_numjornada(NumJornada, Res):-
-    jornada_a_lista(NumJornada, Jornada),
-    suma_jornada(Jornada, Sum),
-    prom(Sum, 10, Prom), 
-    may_65(Jornada, M65),
-    may_50(Jornada, E50),
-    if_cont_1(M65, Cont1),
-    if_cont_2(E50, Cont2),
-    partido_rep_horario(Jornada, Rep),
-    AuxRes is ((((Cont1 + Cont2)/2)*0.6) + (Prom*0.4)),
-    Res is ((AuxRes + Rep)/2).
+   jornada_a_lista(NumJornada, Jornada),
+   suma_jornada(Jornada, Sum),
+   prom(Sum, 10, Prom), 
+   may_65(Jornada, M65),
+   may_50(Jornada, E50),
+   if_cont_1(M65, Cont1),
+   if_cont_2(E50, Cont2),
+   partido_rep_horario(Jornada, Rep),
+   AuxRes is ((((Cont1 + Cont2)/2)*0.6) + (Prom*0.4)),
+   Res is ((AuxRes + Rep)/2).
 
 
 
 /*Regresa una lista ordenada del valor de cada jornada considerando la fecha*/
 
-rating_vuelta_lista([], []).
+rating_vuelta(Vuelta, Res):-
+   rating_vuelta_lista(Vuelta, Lista),
+   sumlist(Lista, Suma),
+   length(Lista, Len),
+   Res is ((Suma)/Len).
+
+rating_vuelta_lista([], []):- !.
 rating_vuelta_lista([Cab|Resto], [CabRes|Cola]):-
-    rating_jornada(Cab, Rat),
-    get_head(Cab,[[_,_], NumJornada,_,_]),
-    check_numjor(NumJornada, Z),
-    CabRes is (Rat*Z),
-    rating_vuelta_lista(Resto, Cola).   
+   rating_vuelta_lista(Resto, Cola),
+   rating_jornada(Cab, Rat),
+   get_head(Cab,[[_,_], NumJornada,_,_]),
+   check_numjor(NumJornada, Z),
+   CabRes is (Rat*Z).
+     
 
 rating_jornada(Jornada, Res):-
-    suma_jornada(Jornada, Sum),
-    prom(Sum, 10, Prom), 
-    may_65(Jornada, M65),
-    may_50(Jornada, E50),
-    if_cont_1(M65, Cont1),
-    if_cont_2(E50, Cont2),
-    partido_rep_horario(Jornada, Rep),
-    AuxRes is ((((Cont1 + Cont2)/2)*0.6) + (Prom*0.4)),
-    Res is ((AuxRes + Rep)/2). 
+   suma_jornada(Jornada, Sum),
+   prom(Sum, 10, Prom), 
+   may_65(Jornada, M65),
+   may_50(Jornada, E50),
+   if_cont_1(M65, Cont1),
+   if_cont_2(E50, Cont2),
+   partido_rep_horario(Jornada, Rep),
+   AuxRes is ((((Cont1 + Cont2)/2)*0.6) + (Prom*0.4)),
+   Res is ((AuxRes + Rep)/2). 
 
 /*Evalúa si el partido es un derby o no*/
 es_derby([Eq1, Eq2], Res):-
-    (derby([Eq1, Eq2]);
-    derby([Eq2, Eq1])) ->
-        Res is 1;
-        Res is 0.
+   (derby([Eq1, Eq2]);
+   derby([Eq2, Eq1])) ->
+       Res is 1;
+       Res is 0.
 
 /*Rating de 0 a 1 de seguidores*/
 seguidores([Eq1, Eq2], Res):-
-    equipo([Eq1, _, X, _, _]),
-    equipo([Eq2, _, Y, _, _]),
-    Z is X + Y, 
-    Res is (Z*1/57).
+   equipo([Eq1, _, X, _, _]),
+   equipo([Eq2, _, Y, _, _]),
+   Z is X + Y, 
+   Res is (Z*1/57).
 
 /*Diferencia entre lugares*/
 /*Evalúa como más relevante entre menor sea la diferencia*/
 dif_lugares([Eq1, Eq2], Res):-
-    equipo([Eq1, X, _, _, _]),
-    equipo([Eq2, Y, _, _, _]),
-    abs(X-Y, Z),
-    Res is ((20/19) - (Z/19)).
+   equipo([Eq1, X, _, _, _]),
+   equipo([Eq2, Y, _, _, _]),
+   W is X-Y,
+   abs(W, Z),
+   Res is ((20/19) - (Z/19)).
 
 prom_lugares([Eq1, Eq2], Res):-
-    equipo([Eq1, X, _, _, _]),
-    equipo([Eq2, Y, _, _, _]),
-    Res is ((41/39) - ((X+Y)/39)).
+   equipo([Eq1, X, _, _, _]),
+   equipo([Eq2, Y, _, _, _]),
+   Res is ((41/39) - ((X+Y)/39)).
 
 /*Contar partidos mayores a 6.5*/
-may_65([],0).
+may_65([],0):-!.
 may_65([Cab|Cola], Res) :-
-    get_head(Cab, Partido),
-    rating_partido(Partido, Rat),
-    may_65(Cola, Resto),
-    (  Rat >= 0.65
-    -> Res is Resto + 1
-    ;  Res = Resto
-    ).
+   get_head(Cab, Partido),
+   rating_partido(Partido, Rat),
+   may_65(Cola, Resto),
+   (  Rat >= 0.65
+   -> Res is Resto + 1
+   ;  Res = Resto
+   ).
 
 /*Contar partidos entre 5 y 6.5*/
-may_50([],0).
+may_50([],0):-!.
 may_50([Cab|Cola], Res) :-
-    get_head(Cab, Partido),
-    rating_partido(Partido, Rat),
-    may_50(Cola, Resto),
-    (  (Rat >= 0.5)
-    -> Res is Resto + 1
-    ;  Res = Resto
-    ).
+   get_head(Cab, Partido),
+   rating_partido(Partido, Rat),
+   may_50(Cola, Resto),
+   (  (Rat >= 0.5)
+   -> Res is Resto + 1
+   ;  Res = Resto
+   ).
 
 if_cont_1(Num, Res):-
-    Num >= 1,
-    Res is 1.
+   Num >= 1,
+   Res is 1,
+   !.
 if_cont_1(Num, Res):-
-    Num =:= 0,
-    Res is 0.
+   Num =:= 0,
+   Res is 0.
 
 if_cont_2(Num, Res):-
-    Num >= 2,
-    Res is 1.
+   Num >= 2,
+   Res is 1,
+   !.
+
 if_cont_2(Num, Res):-
-    Num < 2,
-    Res is 0.
+   Num < 2,
+   Res is 0.
 
 
 
 /*Regresa la suma de los ratings de los 10 partidos de una jornada*/
-suma_jornada([], 0).
+suma_jornada([], 0):-!.
 
 suma_jornada([Cab|Cola], Res):-
-    get_head(Cab, Partido),
-    rating_partido(Partido, Rat),
-    get_tail(Cab, Hora), /*Hora del partido*/
-    dia(Cab, Dia),
-    check_hora(Hora, H1),
-    check_dia(Dia, D1),
-    RatingFinal is (0.8*Rat + (H1 + D1)*0.2),
-    suma_jornada(Cola, Resto),
-    Res is RatingFinal+Resto.
+   suma_jornada(Cola, Resto),
+   get_head(Cab, Partido),
+   rating_partido(Partido, Rat),
+   get_tail(Cab, Hora), /*Hora del partido*/
+   dia(Cab, Dia),
+   check_hora(Hora, H1),
+   check_dia(Dia, D1),
+   RatingFinal is (0.8*Rat + (H1 + D1)*0.2),
+   Res is RatingFinal+Resto.
 
 check_hora(Hora, Res):-
-    (  Hora >= 9
-    -> Res is 0.5
-    ;  Res = 0
-    ).
+   (  Hora >= 9
+   -> Res is 0.5
+   ;  Res = 0
+   ).
 
 check_dia(Dia, Res):-
-    (  Dia == viernes
-    -> Res is 0
-    ;  Res = 0.5
-    ).
+   (  Dia == viernes
+   -> Res is 0
+   ;  Res = 0.5
+   ).
 
 
 
 /*Función para sacar promedios, en general*/
 prom(Suma, Term, Res):-
-    Res is Suma/Term.
+   Res is Suma/Term.
 
 
 /*Función de valor absoluto*/
 abs(X, X):-
-    X >= 0.
+   X >= 0,
+   !.
 abs(X,Y):-
-    X<0, 
-    Y is (-1*X).
+   Y is (-1*X).
 
- % Pequeña función para obtener la cabeza y cola de una lista de forma sencilla.
- get_head([A|_],A).
- get_tail(List,B):-
-    reverse(List,ListR),
-    get_head(ListR,B).
+% Pequeña función para obtener la cabeza y cola de una lista de forma sencilla.
+get_head([A|_],A).
+get_tail(List,B):-
+   reverse(List,ListR),
+   get_head(ListR,B).
 
 /*Da el día del partido*/
 
 dia([_, _, Dia, _], X):-
-    X = Dia.
+   X = Dia.
 
 hora([_, _,_, Hora], X):-
-    X = Hora.
+   X = Hora.
 
 
 /*Devuelve 1 si es un número de jornada regular, y 1.5 si es importante*/
 check_numjor(NumJornada, Res):-
-    NumJornada =:= 1,
-    Res is 1.5.
+   NumJornada =:= 1,
+   Res is 1.5.
 
 check_numjor(NumJornada, Res):-
-    NumJornada =:= 19,
-    Res is 1.5.
+   NumJornada =:= 19,
+   Res is 1.5.
 check_numjor(NumJornada, Res):-
-    NumJornada =:= 20,
-    Res is 1.5.
+   NumJornada =:= 20,
+   Res is 1.5.
 check_numjor(NumJornada, Res):-
-    NumJornada =:= 38,
-    Res is 1.5.
+   NumJornada =:= 38,
+   Res is 1.5.
 check_numjor(NumJornada, Res):-
-    NumJornada =\= 1,
-    NumJornada =\= 19,
-    NumJornada =\= 20,
-    NumJornada =\= 38,
-    Res is 1.
+   NumJornada =\= 1,
+   NumJornada =\= 19,
+   NumJornada =\= 20,
+   NumJornada =\= 38,
+   Res is 1.
 
 
 /*Encuentra la mejor jornada de una vuelta*/
 
-mejor_jornada([Cab], Cab).
+mejor_jornada([Cab], Cab):-!.
 mejor_jornada([CabVuelta|ColaVuelta], Mejor):-
-    mejor_jornada(ColaVuelta, MejorCola),
-    mejor_entre_jornadas(CabVuelta, MejorCola, MejActual),
-    Mejor = MejActual.
+   mejor_jornada(ColaVuelta, MejorCola),
+   mejor_entre_jornadas(CabVuelta, MejorCola, MejActual),
+   Mejor = MejActual.
 
 
 /*Devuelve la mejor jornada entre dos jornadas*/
 mejor_entre_jornadas(Jorn1, Jorn2, Jorn1):-
-    rating_jornada(Jorn1, RatJ1),
-    rating_jornada(Jorn2, RatJ2),
-    RatJ1>RatJ2,
-    !.
+   rating_jornada(Jorn1, RatJ1),
+   rating_jornada(Jorn2, RatJ2),
+   RatJ1>RatJ2,
+   !.
 
 mejor_entre_jornadas(_,Jorn2, Jorn2).
 
@@ -517,17 +530,17 @@ mejor_entre_jornadas(_,Jorn2, Jorn2).
 
 peor_jornada([Cab], Cab).
 peor_jornada([CabVuelta|ColaVuelta], Peor):-
-    peor_jornada(ColaVuelta, PeorCola),
-    peor_entre_jornadas(CabVuelta, PeorCola, PeorActual),
-    Peor = PeorActual.
+   peor_jornada(ColaVuelta, PeorCola),
+   peor_entre_jornadas(CabVuelta, PeorCola, PeorActual),
+   Peor = PeorActual.
 
 
 /*Devuelve la mejor jornada entre dos jornadas*/
 peor_entre_jornadas(Jorn1, Jorn2, Jorn1):-
-    rating_jornada(Jorn1, RatJ1),
-    rating_jornada(Jorn2, RatJ2),
-    RatJ1<RatJ2,
-    !.
+   rating_jornada(Jorn1, RatJ1),
+   rating_jornada(Jorn2, RatJ2),
+   RatJ1<RatJ2,
+   !.
 
 peor_entre_jornadas(_,Jorn2, Jorn2).
 
@@ -535,16 +548,16 @@ peor_entre_jornadas(_,Jorn2, Jorn2).
 
 peor_partido([Partido], Partido).
 peor_partido([CabJor|ColaJor], PeorPartido):-
-    peor_partido(ColaJor, PeorPartidoCola),
-    peor_entre_partidos(CabJor, PeorPartidoCola, PeorPartidoActual),
-    PeorPartido = PeorPartidoActual.
+   peor_partido(ColaJor, PeorPartidoCola),
+   peor_entre_partidos(CabJor, PeorPartidoCola, PeorPartidoActual),
+   PeorPartido = PeorPartidoActual.
 
 /*Da el peor de dos partidos*/
 peor_entre_partidos(Part1, Part2, Part1):-
-    rating_partido(Part1, RatP1),
-    rating_partido(Part2, RatP2),
-    RatP1<RatP2,
-    !.
+   rating_partido(Part1, RatP1),
+   rating_partido(Part2, RatP2),
+   RatP1<RatP2,
+   !.
 
 peor_entre_partidos(_,Part2, Part2).
 
@@ -559,22 +572,22 @@ equipo_partido([[X,_]|_],X).
 /*Dada una jornada, regresa 0 si al menos un partido se repite en hora y día, y 1 si no*/
 
 partido_rep_horario(Jornada, X):-
-    assert_horario(Jornada),
-    findall(Z, distinct(horario(Z)), ListaDistinct),
-    length(ListaDistinct, Len),
-    (  Len < 10
-    -> X is 0
-    ;  X = 1
-    ),
-    retractall(horario(_)).
+   assert_horario(Jornada),
+   findall(Z, distinct(horario(Z)), ListaDistinct),
+   length(ListaDistinct, Len),
+   (  Len < 10
+   -> X is 0
+   ;  X = 1
+   ),
+   retractall(horario(_)).
 
 
-assert_horario([]).
+assert_horario([]):-!.
 assert_horario([Cab|Cola]):-
-    dia(Cab, Dia),
-    hora(Cab, Hora),
-    asserta(horario([Dia,  Hora])),
-    assert_horario(Cola).
+   dia(Cab, Dia),
+   hora(Cab, Hora),
+   asserta(horario([Dia,  Hora])),
+   assert_horario(Cola).
 
 /***********************************
 PASO 4: Algoritmo evolutivo
