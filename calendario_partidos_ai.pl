@@ -344,7 +344,7 @@ rating_vuelta_lista([Cab|Resto], [CabRes|Cola]):-
    check_numjor(NumJornada, Z),
    CabRes is (Rat*Z).
      
-
+/*Evalúa una jornada recibida como lista*/
 rating_jornada(Jornada, Res):-
    suma_jornada(Jornada, Sum),
    prom(Sum, 10, Prom), 
