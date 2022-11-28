@@ -234,3 +234,20 @@ genera_vuelta(Num_jornada):-
    write(Num_jornada),nl,
    Sig_jornada is Num_jornada + 1,
    (genera_vuelta(Sig_jornada) -> true; write('Repitiendo Vuelta'),nl,genera_vuelta, !).
+
+/* Ahora creamos una función que escriba todos los partidos a un archivo CSV */ 
+dame_lista_todos_los_partidos(All_partidos):-
+   findall(X, partido(X), All_partidos).
+
+write_partidos(_, []):- !.
+write_partidos(Out, [Partido | Resto]):-
+   write_partidos(Out, Resto),
+   write(Out, Partido),
+   write(Out, '\n').
+
+write_partidos:-
+   dame_lista_todos_los_partidos(Partidos),
+   open('vuelta_encontrada.csv', write, Out),
+   write(Out, 'Partido\n'),
+   write_partidos(Out, Partidos),
+   close(Out).
