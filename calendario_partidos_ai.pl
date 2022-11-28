@@ -498,7 +498,7 @@ check_numjor(NumJornada, Res):-
    NumJornada =:= 38,
    Res is 1.5,
    !.
-check_numjor(NumJornada, Res):-
+check_numjor(_, Res):-
    Res is 1.
 
 
@@ -595,10 +595,11 @@ PASO 4: Algoritmo evolutivo
 
 
 mutacion([[E1, E2], Jor, Dia, Hora]):-
-    random_member(DiaR, [viernes, sabado, domingo]),
-    random_member(HoraR, [14, 15, 16, 17, 18, 19, 20, 21, 22]),
-    retract(partido([[E1, E2], Jor, Dia, Hora])),
-    asserta(partido([[E1, E2], Jor, DiaR, HoraR])).
+   random_member(DiaR, [viernes, sabado, domingo]),
+   random_member(HoraR, [14, 15, 16, 17, 18, 19, 20, 21, 22]),
+   retract(partido([[E1, E2], Jor, Dia, Hora])),
+   assertz(partido([[E1, E2], Jor, DiaR, HoraR])),
+   !.
 
 
 /* dame_hora_partido(input, output)
@@ -873,7 +874,29 @@ main:-
    genera_vuelta,
    dame_jornadas_en_lista(Lista),
    rating_vuelta(Lista, Rating),
+   write(Rating),
+   (  Rating < 10
+   -> mainmut
+   ;  fin(Lista, Rating)
+   ).
+
+mainmut:-
+   dame_jornadas_en_lista(Lista),
+   random_member(RandomJ, Lista),
+   random_member(RandomP, RandomJ),
+   mutacion(RandomP),
+   dame_jornadas_en_lista(NuevaLista),
+   rating_vuelta(NuevaLista, Rating),
+   (  Rating < 0.6
+   -> mainmut
+   ;  fin(NuevaLista, Rating)
+   ).
+
+fin(Lista, Rating):-
+   write('Rating final'),
+   write(" "),
    write(Rating).
+   
 
 crea_jornadas_listas:-
    crea_jornadas_listas(1).

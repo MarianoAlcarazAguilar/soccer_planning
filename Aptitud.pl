@@ -398,7 +398,8 @@ assert_horario([Cab|Cola]):-
 mutacion([[E1, E2], Jor, Dia, Hora]):-
     random_member(DiaR, [viernes, sabado, domingo]),
     random_member(HoraR, [14, 15, 16, 17, 18, 19, 20, 21, 22]),
-    retract(partido([[E1, E2], Jor, Dia, Hora])),
+    W = [[E1, E2], Jor, Dia, Hora],
+    retract(partido(W)),
     asserta(partido([[E1, E2], Jor, DiaR, HoraR])).
 
 
