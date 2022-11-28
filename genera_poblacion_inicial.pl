@@ -231,5 +231,6 @@ genera_vuelta:-
 genera_vuelta(20):- !.
 genera_vuelta(Num_jornada):-
    agrega_optimizado(Num_jornada, 1, 1, 0),
+   write(Num_jornada),nl,
    Sig_jornada is Num_jornada + 1,
    (genera_vuelta(Sig_jornada) -> true; write('Repitiendo Vuelta'),nl,genera_vuelta, !).
