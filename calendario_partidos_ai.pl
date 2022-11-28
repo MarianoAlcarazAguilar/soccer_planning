@@ -12,22 +12,23 @@
 :- dynamic partido_aux/1.
 
 
-/* Ahora creamos una función que escriba todos los partidos a un archivo CSV */ 
-dame_lista_todos_los_partidos(All_partidos):-
-   findall(X, partido(X), All_partidos).
+%Programa realizado por Javier Nieto Merodio e Israel Cabrera Portillo. 
 
-write_partidos(_, []):- !.
-write_partidos(Out, [Partido | Resto]):-
-   write_partidos(Out, Resto),
-   write(Out, Partido),
-   write(Out, '\n').
+/****************************************************************************/
 
-write_partidos:-
-   dame_lista_todos_los_partidos(Partidos),
-   open('vuelta_encontrada.csv', write, Out),
-   write(Out, 'Partido\n'),
-   write_partidos(Out, Partidos),
-   close(Out).
+%Generador de un calendario de partidos para la Premier League 21/22
+
+% Este programa es un algoritmo evolutivo que busca generar un calendario 
+% de partidos óptimo para toda la temporada 2021/2022 de la Premier League.
+% Genera una población inicial aleatorizada de un calendario factible.
+% Luego, evalúa con una función de aptitud que considera: posición de un 
+% equipo en la temporada pasada, seguidores, si es un derby. De no tener el 
+% rating arriba del mínimo deseado, realiza cruzamientos y mutaciones. 
+% Finalmente, al alcanzar el rating óptimo, guarda la temporada y la regresa 
+% en un archivo csv
+
+/****************************************************************************/
+
 
 
 /*************************
@@ -328,14 +329,15 @@ rating_jornada_numjornada(NumJornada, Res):-
 
 
 
-/*Regresa una lista ordenada del valor de cada jornada considerando la fecha*/
-
+/*Recibe la vuelta como una lista de jornadas
+  Regresa un número entre el 0 y el 1 evaluando la vuelta. */
 rating_vuelta(Vuelta, Res):-
    rating_vuelta_lista(Vuelta, Lista),
    sumlist(Lista, Suma),
    length(Lista, Len),
    Res is ((Suma)/Len).
 
+/*Regresa una lista ordenada del valor de cada jornada considerando la fecha*/
 rating_vuelta_lista([], []):- !.
 rating_vuelta_lista([Cab|Resto], [CabRes|Cola]):-
    rating_vuelta_lista(Resto, Cola),
@@ -406,6 +408,7 @@ may_50([Cab|Cola], Res) :-
    ;  Res = Resto
    ).
 
+/*Si el número es mayor igual a 1, regresa 1. Si no, 0*/
 if_cont_1(Num, Res):-
    Num >= 1,
    Res is 1,
@@ -413,7 +416,7 @@ if_cont_1(Num, Res):-
 if_cont_1(Num, Res):-
    Num =:= 0,
    Res is 0.
-
+/*Si el número es mayor igual a 2, regresa 1. Si no, 0*/
 if_cont_2(Num, Res):-
    Num >= 2,
    Res is 1,
@@ -439,12 +442,13 @@ suma_jornada([Cab|Cola], Res):-
    RatingFinal is (0.8*Rat + (H1 + D1)*0.2),
    Res is RatingFinal+Resto.
 
+/*Valora mejor a los partidos despues de las 9*/
 check_hora(Hora, Res):-
    (  Hora >= 9
    -> Res is 0.5
    ;  Res = 0
    ).
-
+/*Da menos valor a los partidos que suceden en viernes*/
 check_dia(Dia, Res):-
    (  Dia == viernes
    -> Res is 0
@@ -472,10 +476,9 @@ get_tail(List,B):-
    get_head(ListR,B).
 
 /*Da el día del partido*/
-
 dia([_, _, Dia, _], X):-
    X = Dia.
-
+/*Hora del partido*/
 hora([_, _,_, Hora], X):-
    X = Hora.
 
@@ -870,6 +873,10 @@ cambia_partidos_entre_jornadas(_, _, _).
 PASO 5: Implementación final
 *********************/
 
+
+/*Función principal main: con solo escribir main, se ejecuta el programa y regresa en un csv
+el calendario optimo*/
+
 main:-
    genera_vuelta,
    dame_jornadas_en_lista(Lista),
@@ -880,11 +887,25 @@ main:-
    ;  fin(Lista, Rating)
    ).
 
+/*Que realice una mutación y continúe haciendo cambios si es necesario*/
 mainmut:-
    dame_jornadas_en_lista(Lista),
    random_member(RandomJ, Lista),
    random_member(RandomP, RandomJ),
    mutacion(RandomP),
+   dame_jornadas_en_lista(NuevaLista),
+   rating_vuelta(NuevaLista, Rating),
+   (  Rating < 0.62
+   -> maincruz
+   ;  fin(NuevaLista, Rating)
+   ).
+
+/*Para que si no ha terminado realice un cruzamiento y cambie el rating*/
+maincruz:-
+   dame_jornadas_en_lista(Lista),
+   random_member(RandomJ, Lista),
+   random_member(RandomP, RandomJ),
+   /*que aquí haga el cruzamiento*/
    dame_jornadas_en_lista(NuevaLista),
    rating_vuelta(NuevaLista, Rating),
    (  Rating < 0.62
@@ -900,7 +921,14 @@ fin(Lista, Rating):-
    write(" "),
    write(Rating).
    
+/*Función que regresa todas las jornadas de una vuelta como lista*/
 
+dame_jornadas_en_lista(Lista):-
+   crea_jornadas_listas,
+   findall(X, jornada(X), Lista),
+   retractall(jornada(X)).
+
+/*Con asserta, agrega elementos tipo jornada para luego poder usar findall*/
 crea_jornadas_listas:-
    crea_jornadas_listas(1).
 
@@ -911,9 +939,20 @@ crea_jornadas_listas(Num_jornada):-
    Aux_num is Num_jornada + 1,
    crea_jornadas_listas(Aux_num).
 
-dame_jornadas_en_lista(Lista):-
-   crea_jornadas_listas,
-   findall(X, jornada(X), Lista),
-   retractall(jornada(X)).
+/* Función que escribe todos los partidos a un archivo CSV */ 
+dame_lista_todos_los_partidos(All_partidos):-
+   findall(X, partido(X), All_partidos).
 
+write_partidos(_, []):- !.
+write_partidos(Out, [Partido | Resto]):-
+   write_partidos(Out, Resto),
+   write(Out, Partido),
+   write(Out, '\n').
+
+write_partidos:-
+   dame_lista_todos_los_partidos(Partidos),
+   open('vuelta_encontrada.csv', write, Out),
+   write(Out, 'Partido\n'),
+   write_partidos(Out, Partidos),
+   close(Out).
 
