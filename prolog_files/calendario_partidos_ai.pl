@@ -895,7 +895,7 @@ el calendario optimo*/
 
 encuentra_temporada:-
    genera_vuelta,
-   open('../other_files/progreso_calificacion.csv', write, Out),
+   open('./other_files/progreso_calificacion.csv', write, Out),
    write(Out, 'Calificacion\n'),
    write('Vuelta ha sido generada'),nl,
    dame_jornadas_en_lista(Lista),
@@ -921,7 +921,7 @@ mainmut(Out):-
    write(Rating),nl,
    write(Out, Rating),
    write(Out, '\n'),
-   (  Rating < 0.8
+   (  Rating < 0.7
    -> maincruz(Out)
    ;  fin(NuevaLista, Rating, Out), !
    ).
@@ -936,7 +936,7 @@ maincruz(Out):-
    write(Rating),nl,
    write(Out, Rating),
    write(Out, '\n'),
-   (  Rating < 0.8
+   (  Rating < 0.7
    -> mainmut(Out)
    ;  fin(NuevaLista, Rating, Out), !
    ).
