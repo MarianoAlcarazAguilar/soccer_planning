@@ -895,17 +895,19 @@ el calendario optimo*/
 
 main:-
    genera_vuelta,
+   open('progreso_calificacion.csv', write, Out),
+   write(Out, 'Calificacion\n'),
    write('Vuelta ha sido generada'),nl,
    dame_jornadas_en_lista(Lista),
    rating_vuelta(Lista, Rating),
    write(Rating),
    (  Rating < 10
-   -> mainmut
-   ;  fin(Lista, Rating)
+   -> mainmut(Out)
+   ;  fin(Lista, Rating, Out)
    ).
 
 /*Que realice una mutación y continúe haciendo cambios si es necesario*/
-mainmut:-
+mainmut(Out):-
    (true ->
       dame_partido_aleatorio_peor_jornada(RandomP)
       ;
@@ -917,25 +919,30 @@ mainmut:-
    dame_jornadas_en_lista(NuevaLista),
    rating_vuelta(NuevaLista, Rating),
    write(Rating),nl,
+   write(Out, Rating),
+   write(Out, '\n'),
    (  Rating < 0.75
-   -> maincruz
-   ;  fin(NuevaLista, Rating), !
+   -> maincruz(Out)
+   ;  fin(NuevaLista, Rating, Out), !
    ).
 
 /*Para que si no ha terminado realice un cruzamiento y cambie el rating*/
-maincruz:-
+maincruz(Out):-
    elige_equipo_al_azar(Equipo),
    dame_peor_jornada_y_al_azar(Jornada_a, Jornada_b),
    cambia_partidos_entre_jornadas_oficial(Equipo, Jornada_a, Jornada_b),
    dame_jornadas_en_lista(NuevaLista),
    rating_vuelta(NuevaLista, Rating),
    write(Rating),nl,
+   write(Out, Rating),
+   write(Out, '\n'),
    (  Rating < 0.75
-   -> mainmut
-   ;  fin(NuevaLista, Rating), !
+   -> mainmut(Out)
+   ;  fin(NuevaLista, Rating, Out), !
    ).
 
-fin(_, Rating):-
+fin(_, Rating, Out):-
+   close(Out),
    write('Rating final'),
    write(" "),
    write(Rating),
