@@ -917,7 +917,7 @@ mainmut:-
    dame_jornadas_en_lista(NuevaLista),
    rating_vuelta(NuevaLista, Rating),
    write(Rating),nl,
-   (  Rating < 0.83
+   (  Rating < 0.8
    -> maincruz
    ;  fin(NuevaLista, Rating), !
    ).
@@ -930,7 +930,7 @@ maincruz:-
    dame_jornadas_en_lista(NuevaLista),
    rating_vuelta(NuevaLista, Rating),
    write(Rating),nl,
-   (  Rating < 0.83
+   (  Rating < 0.8
    -> mainmut
    ;  fin(NuevaLista, Rating), !
    ).
