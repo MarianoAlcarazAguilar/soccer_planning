@@ -918,7 +918,6 @@ mainmut(Out):-
    mutacion(RandomP),
    dame_jornadas_en_lista(NuevaLista),
    rating_vuelta(NuevaLista, Rating),
-   write(Rating),nl,
    write(Out, Rating),
    write(Out, '\n'),
    (  Rating < 0.75
@@ -933,7 +932,6 @@ maincruz(Out):-
    cambia_partidos_entre_jornadas_oficial(Equipo, Jornada_a, Jornada_b),
    dame_jornadas_en_lista(NuevaLista),
    rating_vuelta(NuevaLista, Rating),
-   write(Rating),nl,
    write(Out, Rating),
    write(Out, '\n'),
    (  Rating < 0.75
