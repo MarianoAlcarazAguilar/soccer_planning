@@ -895,7 +895,7 @@ el calendario optimo*/
 
 encuentra_temporada:-
    genera_vuelta,
-   open('progreso_calificacion.csv', write, Out),
+   open('../other_files/progreso_calificacion.csv', write, Out),
    write(Out, 'Calificacion\n'),
    write('Vuelta ha sido generada'),nl,
    dame_jornadas_en_lista(Lista),
@@ -980,7 +980,7 @@ write_partidos(Out, [Partido | Resto]):-
 
 write_partidos:-
    dame_lista_todos_los_partidos(Partidos),
-   open('vuelta_encontrada.pl', write, Out),
+   open('./prolog_files/vuelta_encontrada.pl', write, Out),
    %write(Out, 'Partido\n'),
    write_partidos(Out, Partidos),
    close(Out).
