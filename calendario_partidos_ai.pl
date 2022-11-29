@@ -893,7 +893,7 @@ PASO 5: Implementación final
 /*Función principal main: con solo escribir main, se ejecuta el programa y regresa en un csv
 el calendario optimo*/
 
-main:-
+encuentra_temporada:-
    genera_vuelta,
    open('progreso_calificacion.csv', write, Out),
    write(Out, 'Calificacion\n'),
