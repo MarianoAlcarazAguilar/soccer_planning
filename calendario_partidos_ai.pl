@@ -964,3 +964,7 @@ write_partidos:-
    write_partidos(Out, Partidos),
    close(Out).
 
+imprime_lista([]):- !.
+imprime_lista([H | T]):-
+   imprime_lista(T),
+   write(H),nl.
