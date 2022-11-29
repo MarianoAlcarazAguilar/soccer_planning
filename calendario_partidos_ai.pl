@@ -541,6 +541,12 @@ dame_peor_jornada_y_al_azar(Peor_jornada, Otra_jornada):-
    num_peor_jornada(Peor_jornada),
    dame_otro_num_jornada(Peor_jornada, Otra_jornada).
 
+/* Funcion que regresa un partido aleatorio de la peor jornada */
+dame_partido_aleatorio_peor_jornada(Partido):-
+   num_peor_jornada(Peor),
+   dame_partidos_jornada(Peor, Partidos),
+   random_member(Partido, Partidos).
+
 
 /*Devuelve la mejor jornada entre dos jornadas*/
 peor_entre_jornadas(Jorn1, Jorn2, Jorn1):-
@@ -900,14 +906,18 @@ main:-
 
 /*Que realice una mutación y continúe haciendo cambios si es necesario*/
 mainmut:-
-   dame_jornadas_en_lista(Lista),
-   random_member(RandomJ, Lista),
-   random_member(RandomP, RandomJ),
+   (true ->
+      dame_partido_aleatorio_peor_jornada(RandomP)
+      ;
+         dame_jornadas_en_lista(Lista),
+         random_member(RandomJ, Lista),
+         random_member(RandomP, RandomJ)
+   ),
    mutacion(RandomP),
    dame_jornadas_en_lista(NuevaLista),
    rating_vuelta(NuevaLista, Rating),
    write(Rating),nl,
-   (  Rating < 0.75
+   (  Rating < 0.7
    -> maincruz
    ;  fin(NuevaLista, Rating), !
    ).
@@ -920,7 +930,7 @@ maincruz:-
    dame_jornadas_en_lista(NuevaLista),
    rating_vuelta(NuevaLista, Rating),
    write(Rating),nl,
-   (  Rating < 0.75
+   (  Rating < 0.7
    -> mainmut
    ;  fin(NuevaLista, Rating), !
    ).
