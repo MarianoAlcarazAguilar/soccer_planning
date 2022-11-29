@@ -1,5 +1,6 @@
 #! /bin/bash
 
+echo -e 'Por favor espera, estamos crendo tu nueva temporada.\nEsto puede tardar unos minutos.'
 swipl -c ./prolog_files/calendario_partidos_ai.pl
 
 echo -e 'Graficando Resultados\n'
