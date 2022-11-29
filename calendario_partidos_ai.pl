@@ -973,13 +973,15 @@ dame_lista_todos_los_partidos(All_partidos):-
 write_partidos(_, []):- !.
 write_partidos(Out, [Partido | Resto]):-
    write_partidos(Out, Resto),
+   write(Out, 'partido('),
    write(Out, Partido),
+   write(Out, ').'),
    write(Out, '\n').
 
 write_partidos:-
    dame_lista_todos_los_partidos(Partidos),
-   open('vuelta_encontrada.csv', write, Out),
-   write(Out, 'Partido\n'),
+   open('vuelta_encontrada.pl', write, Out),
+   %write(Out, 'Partido\n'),
    write_partidos(Out, Partidos),
    close(Out).
 
