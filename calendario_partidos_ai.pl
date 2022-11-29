@@ -12,7 +12,7 @@
 :- dynamic partido_aux/1.
 
 
-%Programa realizado por Javier Nieto Merodio e Israel Cabrera Portillo. 
+%Programa realizado por Javier Nieto Merodio y Mariano Alcaraz Aguilar
 
 /****************************************************************************/
 
@@ -23,7 +23,7 @@
 % Genera una población inicial aleatorizada de un calendario factible.
 % Luego, evalúa con una función de aptitud que considera: posición de un 
 % equipo en la temporada pasada, seguidores, si es un derby. De no tener el 
-% rating arriba del mínimo deseado, realiza cruzamientos y mutaciones. 
+% rating arriba del minimo deseado, realiza cruzamientos y mutaciones. 
 % Finalmente, al alcanzar el rating óptimo, guarda la temporada y la regresa 
 % en un archivo csv
 
