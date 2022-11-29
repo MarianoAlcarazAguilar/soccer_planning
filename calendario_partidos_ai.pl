@@ -921,7 +921,7 @@ mainmut(Out):-
    write(Rating),nl,
    write(Out, Rating),
    write(Out, '\n'),
-   (  Rating < 0.75
+   (  Rating < 0.8
    -> maincruz(Out)
    ;  fin(NuevaLista, Rating, Out), !
    ).
@@ -936,7 +936,7 @@ maincruz(Out):-
    write(Rating),nl,
    write(Out, Rating),
    write(Out, '\n'),
-   (  Rating < 0.75
+   (  Rating < 0.8
    -> mainmut(Out)
    ;  fin(NuevaLista, Rating, Out), !
    ).
