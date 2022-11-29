@@ -900,7 +900,7 @@ encuentra_temporada:-
    write('Vuelta ha sido generada'),nl,
    dame_jornadas_en_lista(Lista),
    rating_vuelta(Lista, Rating),
-   write('Rating inicial: ')
+   write('Rating inicial: '),
    write(Rating),
    nl,
    (  Rating < 10
