@@ -989,3 +989,5 @@ imprime_lista([]):- !.
 imprime_lista([H | T]):-
    imprime_lista(T),
    write(H),nl.
+
+:- encuentra_temporada.
