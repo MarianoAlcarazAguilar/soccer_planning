@@ -83,10 +83,23 @@ PASO 2: Generar vuelta inicial
 
 dias([viernes, sabado, domingo]).
 horarios([14, 15, 16, 17, 18, 19, 20, 21, 22]).
+num_jornadas([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]).
 
 /* Regresa una lista con los nombres de todos los equipos */
 dame_nombres_equipos(Equipos):-
    findall(X, equipo([X, _, _, _, _]), Equipos).
+
+/* Dame nombre de equipo aleatoriamente */
+elige_equipo_al_azar(Equipo):-
+   dame_nombres_equipos(All_teams),
+   random_member(Equipo, All_teams).
+
+/* Dame dos números de jornadas aleatoriamente */
+elige_dos_jornadas_al_azar(Jornada_a, Jornada_b):-
+   num_jornadas(All_jornadas),
+   random_member(Jornada_a, All_jornadas),
+   delete(All_jornadas, Jornada_a, All_jornadas_b),
+   random_member(Jornada_b, All_jornadas_b).
 
 /* Quiero generar todas las combinaciones de partidos entre los equipos */
 genera_contrincantes([]):- !.
@@ -501,14 +514,32 @@ mejor_entre_jornadas(Jorn1, Jorn2, Jorn1):-
 
 mejor_entre_jornadas(_,Jorn2, Jorn2).
 
+/*Da el número de la peor jornada*/
+
+num_peor_jornada(Num):-
+   dame_jornadas_en_lista(Vuelta),
+   peor_jornada(Vuelta, Jornada),
+   num_jornada(Jornada, Num).
+
 
 /*Encuentra la peor jornada de una vuelta*/
 
-peor_jornada([Cab], Cab).
+peor_jornada([Cab], Cab):- !.
 peor_jornada([CabVuelta|ColaVuelta], Peor):-
    peor_jornada(ColaVuelta, PeorCola),
    peor_entre_jornadas(CabVuelta, PeorCola, PeorActual),
    Peor = PeorActual.
+
+/* Dado el número de la peor jornada, dame otro número de jornada */
+dame_otro_num_jornada(Jornada_a, Jornada_b):-
+   num_jornadas(All_jornadas),
+   delete(All_jornadas, Jornada_a, All_aux),
+   random_member(Jornada_b, All_aux).
+
+/* Encontrar el número de la peor jornada, y otro random */
+dame_peor_jornada_y_al_azar(Peor_jornada, Otra_jornada):-
+   num_peor_jornada(Peor_jornada),
+   dame_otro_num_jornada(Peor_jornada, Otra_jornada).
 
 
 /*Devuelve la mejor jornada entre dos jornadas*/
@@ -838,7 +869,8 @@ cambia_partidos_entre_jornadas_oficial(Equipo_inicial, Jornada_a, Jornada_b):-
    dame_partidos_dos_jornadas(Jornada_a, Jornada_b, Partidos_a_cambiar),
    find_teams_to_move(Equipo_inicial, Jornada_a, Jornada_b, Equipos),
    escribe_partidos_auxiliares(Equipo_inicial, Jornada_a, Jornada_b, Equipos, Partidos_a_cambiar),
-   add_partidos_aux_to_partidos.
+   add_partidos_aux_to_partidos,
+   !.
 
 cambia_partidos_entre_jornadas(Equipo_inicial, Jornada_a, Jornada_b):-
    crea_partidos_auxiliares(Equipo_inicial, Jornada_a, Jornada_b),
@@ -857,6 +889,7 @@ el calendario optimo*/
 
 main:-
    genera_vuelta,
+   write('Vuelta ha sido generada'),nl,
    dame_jornadas_en_lista(Lista),
    rating_vuelta(Lista, Rating),
    write(Rating),
@@ -873,31 +906,28 @@ mainmut:-
    mutacion(RandomP),
    dame_jornadas_en_lista(NuevaLista),
    rating_vuelta(NuevaLista, Rating),
-   (  Rating < 0.62
+   (  Rating < 0.7
    -> maincruz
-   ;  fin(NuevaLista, Rating)
+   ;  fin(NuevaLista, Rating), !
    ).
 
 /*Para que si no ha terminado realice un cruzamiento y cambie el rating*/
 maincruz:-
-   dame_jornadas_en_lista(Lista),
-   random_member(RandomJ, Lista),
-   random_member(RandomP, RandomJ),
-   /*que aquí haga el cruzamiento*/
+   elige_equipo_al_azar(Equipo),
+   dame_peor_jornada_y_al_azar(Jornada_a, Jornada_b),
+   cambia_partidos_entre_jornadas_oficial(Equipo, Jornada_a, Jornada_b),
    dame_jornadas_en_lista(NuevaLista),
    rating_vuelta(NuevaLista, Rating),
-   (  Rating < 0.62
+   (  Rating < 0.7
    -> mainmut
-   ;  fin(NuevaLista, Rating)
+   ;  fin(NuevaLista, Rating), !
    ).
 
-fin(Lista, Rating):-
-   write('Temporada final'),
-   write(Lista),
-   writeln(''),
+fin(_, Rating):-
    write('Rating final'),
    write(" "),
-   write(Rating).
+   write(Rating),
+   write_partidos.
    
 /*Función que regresa todas las jornadas de una vuelta como lista*/
 

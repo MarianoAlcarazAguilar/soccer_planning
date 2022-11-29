@@ -310,4 +310,4 @@ cambia_partidos_entre_jornadas(Equipo_inicial, Jornada_a, Jornada_b):-
    crea_partidos_auxiliares(Equipo_inicial, Jornada_a, Jornada_b),
    add_partidos_aux_to_partidos.
    
-cambia_partidos_entre_jornadas(_, _, _).
+cambia_partidos_entre_jornadas_oficial(_, _, _).
