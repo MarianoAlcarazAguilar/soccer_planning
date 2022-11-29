@@ -2,4 +2,8 @@
 
 swipl -c calendario_partidos_ai.pl
 
-echo 'He terminado'
+echo -e 'Graficando Resultados\n'
+python grafica_progreso.py
+
+echo 'Eliminando cosas innecesarias (a.out)'
+rm a.out
