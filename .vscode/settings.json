@@ -1,0 +1,15 @@
+{
+   "editor.autoClosingBrackets": "always",
+   "editor.fontFamily": "menlo, Monaco, 'Courier New', monospace",
+   "workbench.colorTheme": "One Dark Pro",
+   "editor.bracketPairColorization.enabled": true,
+   "workbench.colorCustomizations": {
+      "editorBracketHighlight.foreground1": "#5caeef",
+      "editorBracketHighlight.foreground2": "#0de44a",
+      "editorBracketHighlight.foreground3": "#dc3b05",
+      "editorBracketHighlight.foreground4": "#4fb1bc",
+      "editorBracketHighlight.foreground5": "#97c26c",
+      "editorBracketHighlight.foreground6": "#abb2c0",
+      "editorBracketHighlight.unexpectedBracket.foreground": "#db6165"
+   }
+}
